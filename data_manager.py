@@ -3,4 +3,6 @@ import sqlite3
 from System_data import Sysdata
 
 class Data_formatter:
-    pass
+    
+    def __init__(self, system_data):
+        pass

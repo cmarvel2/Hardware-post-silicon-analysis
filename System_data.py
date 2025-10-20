@@ -1,30 +1,26 @@
-import psutil
-import cpuinfo
-import GPUtil
+import psutil, GPUtil, cpuinfo, platform, subprocess
 import pandas as pd
-import os
 
 
 class Sysdata:
     def get_top_processes(self):
-
 
         Processlist = []
         for p in psutil.process_iter(['name']):
             process= psutil.Process(pid=p.pid)
             Processlist.append(process.as_dict(attrs= ['name','cpu_percent','memory_percent'] ))
         
-        for d in Processlist:
-            for k,v in d.items():
-                if k == 'memory_percent':
-                     d[k] = round(v,1)
+        for process in Processlist:
+            for k,v in process.items():
+                if k == 'memory_percent' and k:
+                     process[k] = round(v,1)
         
-        def sortmem(e):
-            return e['memory_percent']
+        def sortmem(mem):
+            return mem['memory_percent']
         
         Processlist.sort(key=sortmem, reverse=True)
 
-        return Processlist[:5]
+        return Processlist
     
     @classmethod
     def get_gpu_info(cls):
@@ -49,25 +45,57 @@ class Sysdata:
             gpuinfo["Temperature"].append(str(round(gpu.temperature)))
             
         return gpuinfo
+    
+    @classmethod
+    def system_specif_functs(self):
+        Sysfunctlist = []
+        CPUtemp = None
+        CPUfreq = None
+        
+        if platform.system() == "Windows":
+            command = r"""
+        $MaxClockSpeed = (Get-CimInstance CIM_Processor).MaxClockSpeed
+        $ProcessorPerformance = (Get-Counter -Counter "\Processor Information(_Total)\% Processor Performance").CounterSamples.CookedValue
+        $CurrentClockSpeed = $MaxClockSpeed*($ProcessorPerformance/100)
+        Write-Host $CurrentClockSpeed
+"""
+            completed = subprocess.run(["powershell", "-command", command], capture_output=True)
+            Freq = float(completed.stdout) / 1000
+            Sysfunctlist.append(round(Freq,2))
+            
+        elif platform.system() == "Linux":
+            print("Ltest")
+        else:
+            CPUtemp = "Not Supported"
+            Cpufreq = "Not Supported"
 
+        for p in psutil.disk_partitions():
+            Sysfunctlist.append(p.mountpoint)
+        print(Sysfunctlist)
+        return Sysfunctlist
 
     def get_telemetry(self):
+        Sysfuncts = Sysdata.system_specif_functs()
         gpu_info =  Sysdata.get_gpu_info()
-        gpuname = ",".join(gpu_info.get("Names", "No GPU Detected"))
+        mem_info = psutil.virtual_memory()
+        disk_info = psutil.disk_usage(Sysfuncts[2])
+        cpu_temp = None
+        
 
 
         data = {
-                #"CPU": [cpuinfo.get_cpu_info()['brand_raw']],
+                "CPU": [cpuinfo.get_cpu_info()['brand_raw']],
                 "Cores": [psutil.cpu_count(logical=False)],
                 "Logical Processors": [psutil.cpu_count()],
                 "CPU Utilization": [f"{psutil.cpu_percent()}%"],
                 "CPU Frequency": [psutil.cpu_freq().current],
-                "Total Memory": [f"{round(psutil.virtual_memory().total/1024**3,1)} GB"],
-                "Memory Utilization": [f"{round(psutil.virtual_memory().used/1024**3,1)} GB"],
-                "Memory Utilization": [f"{psutil.virtual_memory().percent}%"],
-                "Disk Capacity": [f"{round(psutil.disk_usage("C:\\").total/1024**3)} GB"],
-                "Disk Utilization": [f"{round(psutil.disk_usage("C:\\").used/1024**3)} GB"],
-                "Disk Utilization": [f"{psutil.disk_usage("c:\\").percent}%"],
+                "CPU Temperature":[f"{[cpu_temp]} C"],
+                "Total System Memory": [f"{round(mem_info.total/1024**3,1)} GB"],
+                "Used System Memory": [f"{round(mem_info.used/1024**3,1)} GB"],
+                "Memory Utilization": [f"{mem_info.percent}%"],
+                "Total Disk Capacity": [f"{round(disk_info.total/1024**3)} GB"],
+                "Used Disk Capacity": [f"{round(disk_info.used/1024**3)} GB"],
+                "Disk Utilization": [f"{disk_info.percent}%"],
                 #"Bytes sent in KB": [psutil.net_io_counters(pernic=True)['lo'][0]/1024],
                 #"Bytes recived in KB": [psutil.net_io_counters(pernic=True)['lo'][1]/1024]
                 "GPU": [",".join(gpu_info.get("Names", "No GPU Detected"))],
@@ -78,13 +106,13 @@ class Sysdata:
                 "GPU Temperature": [f"{",".join(gpu_info.get("Temperature", "0"))} C"]
 }
 
-        df =pd.DataFrame(data)
-        df=df.to_string()
-        return df
+        
+        return data
 
 system = Sysdata()
-#print(system.get_top_processes())
-print(system.get_telemetry())
+#pprint.pp(system.get_top_processes())
+#pprint.pp(system.get_telemetry())
+Sysdata.system_specif_functs()
 
 
 
