@@ -1,23 +1,21 @@
 import pandas as pd
-import sqlite3
+import sqlite3 as db
+from sqlalchemy import create_engine
 from System_data import Sysdata
 from datetime import datetime
 
 class Data_formatter:
     
-    def __init__(self, system_data, process_data):
-        self.system_data =  system_data
-        self.process_data = process_data
+    def __init__(self, hardware_data, process_data):
+        self.hardware_data =  pd.DataFrame(hardware_data)
+        self.process_data = pd.DataFrame(process_data)
+    
+    def sql_connector(self):
+        engine = create_engine("sqlite+pysqlite:///Hwdata.db", echo=True, future=True)
 
-    def System_telemetry_dataframe(self):
-        df = pd.DataFrame(self.system_data)
-
-        return df
-
-    def processor_data_dataframe(self):
-        df = pd.DataFrame(self.process_data)
-
-        return df
+        self.hardware_data.to_sql(name='HardwareDatabase', con=engine)
+        self.process_data.to_sql(name="ProcessesDatabse", con=engine)
+   
 
 system = Sysdata()
 systemdata= system.get_telemetry()
@@ -27,4 +25,4 @@ formatteddata = Data_formatter(systemdata,processdata)
 #print(formatteddata.processor_data_dataframe())
 
 
-print(datetime.today())
+#print(datetime.today())

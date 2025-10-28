@@ -1,13 +1,12 @@
-import psutil, GPUtil, cpuinfo, platform, subprocess, pprint
-from pyuac import main_requires_admin
+import psutil, GPUtil, cpuinfo, platform, WinTmp, wmi
+import pandas as pd
 
 
 class Sysdata:
+    @classmethod
     def get_top_processes(self):
-
         Processlist = []
         UniqProcesslist =[]
-        
 
         for p in psutil.process_iter(['name']):
             try:
@@ -33,15 +32,12 @@ class Sysdata:
                             process2['memory_percent'] += process1.get('memory_percent',0)
                             process2['cpu_percent'] += process1.get('cpu_percent',0)
                             break
-        
-        #for num, processname in enumerate(UniqProcesslist)
 
         
         def sortmem(mem):
             return mem['memory_percent']
         
         UniqProcesslist.sort(key=sortmem, reverse=True)
-        print(UniqProcesslist)
         return UniqProcesslist[:5]
     
     @classmethod
@@ -69,42 +65,35 @@ class Sysdata:
         return gpuinfo
     
     @classmethod
-    #@main_requires_admin
     def system_specif_functs(self):
         Sysfunctlist = []
-        CPUtemp = None
-        CPUfreq = None
-        
-        
+    
         if platform.system() == "Windows":
-            GHzcommand = r"""
-        $MaxClockSpeed = (Get-CimInstance CIM_Processor).MaxClockSpeed
-        $ProcessorPerformance = (Get-Counter -Counter "\Processor Information(_Total)\% Processor Performance").CounterSamples.CookedValue
-        $CurrentClockSpeed = $MaxClockSpeed*($ProcessorPerformance/100)
-        Write-Host $CurrentClockSpeed
-"""
-            GHzcompleted = subprocess.run(["powershell", "-command", GHzcommand], capture_output=True)
-            Freq = float(GHzcompleted.stdout) / 1000
-            Sysfunctlist.append(round(Freq,2))
+            freq = wmi.WMI(namespace="root\\cimv2")
 
-            Cpucommand = r"""((Get-CimInstance MSAcpi_ThermalZoneTemperature -Namespace "root/wmi").CurrentTemperature / 10 - 273.15)
-""" 
-            Cpucompleted = subprocess.run(['powershell', "-command", Cpucommand], capture_output=True,)
-            ctemp = Cpucompleted.stdout
-            Sysfunctlist.append(ctemp.decode().strip())
-           
+            processor_info = freq.Win32_Processor()[0]
+            max_speed_mhz = int(processor_info.MaxClockSpeed)
+                    
+            freq_data = freq.Win32_PerfFormattedData_Counters_ProcessorInformation(Name="_Total")[0]
+            freq_percent = int(freq_data.PercentProcessorPerformance)
             
+            current_speed_mhz = max_speed_mhz * (freq_percent / 100.0)
+            freq_ghz = round(current_speed_mhz / 1000, 2)
             
+            Sysfunctlist.append(freq_ghz)
+
+            Sysfunctlist.append(round(WinTmp.CPU_Temp(), 1))
             
         elif platform.system() == "Linux":
             Sysfunctlist.append(psutil.cpu_freq().current)
             Sysfunctlist.append(psutil.sensors._temperatures()['coretemp'].current())
         else:
-            CPUtemp = "Not Supported"
-            Cpufreq = "Not Supported"
+            Sysfunctlist.append("Not Supported")
+            Sysfunctlist.append("Not Supported")
 
         for p in psutil.disk_partitions():
             Sysfunctlist.append(p.mountpoint)
+        
         return Sysfunctlist
 
     def get_telemetry(self):
@@ -112,7 +101,6 @@ class Sysdata:
         gpu_info =  Sysdata.get_gpu_info()
         mem_info = psutil.virtual_memory()
         disk_info = psutil.disk_usage(Sysfuncts[2])
-        cpu_temp = None
         
 
 
@@ -120,24 +108,22 @@ class Sysdata:
                 "CPU": [cpuinfo.get_cpu_info()['brand_raw']],
                 "Cores": [psutil.cpu_count(logical=False)],
                 "Logical Processors": [psutil.cpu_count()],
-                "CPU Utilization": [f"{psutil.cpu_percent(interval=0.1)}%"],
-                "CPU Frequency": [f"{Sysfuncts[0]} GHz"],
-                #"CPU Temperature":[f"{[Sysfuncts[1]]} C"],
-                "Total System Memory": [f"{round(mem_info.total/1024**3,1)} GB"],
-                "Used System Memory": [f"{round(mem_info.used/1024**3,1)} GB"],
-                "Memory Utilization": [f"{mem_info.percent}%"],
-                "Total Disk Capacity": [f"{round(disk_info.total/1024**3)} GB"],
-                "Used Disk Capacity": [f"{round(disk_info.used/1024**3)} GB"],
-                "Disk Utilization": [f"{disk_info.percent}%"],
+                "CPU Utilization %": [psutil.cpu_percent(interval=0.1)],
+                "CPU Frequency GHz": [Sysfuncts[0]],
+                "CPU Temperature C": [Sysfuncts[1]],
+                "Total System Memory GB": [round(mem_info.total/1024**3,1)],
+                "Used System Memory GB": [round(mem_info.used/1024**3,1)],
+                "Memory Utilization %": [mem_info.percent],
+                "Total Disk Capacity GB": [round(disk_info.total/1024**3)],
+                "Used Disk Capacity GB": [round(disk_info.used/1024**3)],
+                "Disk Utilization %": [disk_info.percent],
                 "GPU": [",".join(gpu_info.get("Names", "No GPU Detected"))],
-                "GPU Utilization": [f"{",".join(gpu_info.get("Utilization", "0"))}%"],
-                "Total GPU Memory": [f"{",".join(gpu_info.get("TotalMemory", "0"))} GB"],
-                "Used GPU Memory": [f"{",".join(gpu_info.get("UsedMemory", "0"))} GB"],
-                "GPU Memory Utilization": [f"{",".join(gpu_info.get("MemUtilization", "0"))}%"],
-                "GPU Temperature": [f"{",".join(gpu_info.get("Temperature", "0"))} C"]
+                "GPU Utilization %": [float(",".join(gpu_info.get("Utilization", '0')))],
+                "Total GPU Memory GB": [float(",".join(gpu_info.get("TotalMemory", '0')))],
+                "Used GPU Memory GB": [float(",".join(gpu_info.get("UsedMemory", '0')))],
+                "GPU Memory Utilization %": [float(",".join(gpu_info.get("MemUtilization", '0')))],
+                "GPU Temperature C": [float(",".join(gpu_info.get("Temperature", '0')))]
 }
-
-        
         return data
 
 system = Sysdata()
