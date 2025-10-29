@@ -1,28 +1,30 @@
 import pandas as pd
 import sqlite3 as db
 from sqlalchemy import create_engine
-from System_data import Sysdata
-from datetime import datetime
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy_utils import database_exists, create_database
+
+
 
 class Data_formatter:
     
-    def __init__(self, hardware_data, process_data):
+    def __init__(self, hardware_data, process_data, timestamp):
+
         self.hardware_data =  pd.DataFrame(hardware_data)
         self.process_data = pd.DataFrame(process_data)
-    
-    def sql_connector(self):
-        engine = create_engine("sqlite+pysqlite:///Hwdata.db", echo=True, future=True)
 
-        self.hardware_data.to_sql(name='HardwareDatabase', con=engine)
-        self.process_data.to_sql(name="ProcessesDatabse", con=engine)
+        self.hardware_data["Timestamp"] = timestamp
+        self.process_data["Timestamp"] = timestamp
+    
+    def sql_connector(self, user, password, host, port, db):
+        url = f"postgresql://{user}:{password}@{host}:{port}/{db}"
+        if not database_exists(url):
+            create_database(url)
+
+        engine=create_engine(url, pool_size=50, echo=False)
+                               
+
+        self.hardware_data.to_sql(name='HardwareDatabase', con=engine, if_exists='append', index=False)
+        self.process_data.to_sql(name="ProcessesDatabase", con=engine, if_exists='append', index=False)
    
 
-system = Sysdata()
-systemdata= system.get_telemetry()
-processdata= system.get_top_processes()
-formatteddata = Data_formatter(systemdata,processdata)
-#print(formatteddata.System_telemetry_dataframe())
-#print(formatteddata.processor_data_dataframe())
-
-
-#print(datetime.today())

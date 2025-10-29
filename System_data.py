@@ -1,9 +1,6 @@
 import psutil, GPUtil, cpuinfo, platform, WinTmp, wmi
-import pandas as pd
-
 
 class Sysdata:
-    @classmethod
     def get_top_processes(self):
         Processlist = []
         UniqProcesslist =[]
@@ -40,8 +37,7 @@ class Sysdata:
         UniqProcesslist.sort(key=sortmem, reverse=True)
         return UniqProcesslist[:5]
     
-    @classmethod
-    def get_gpu_info(cls):
+    def get_gpu_info(self):
         gpuinfo = {
             "Names": [], 
             "TotalMemory": [], 
@@ -64,7 +60,6 @@ class Sysdata:
             
         return gpuinfo
     
-    @classmethod
     def system_specif_functs(self):
         Sysfunctlist = []
     
@@ -97,8 +92,8 @@ class Sysdata:
         return Sysfunctlist
 
     def get_telemetry(self):
-        Sysfuncts = Sysdata.system_specif_functs()
-        gpu_info =  Sysdata.get_gpu_info()
+        Sysfuncts = self.system_specif_functs()
+        gpu_info =  self.get_gpu_info()
         mem_info = psutil.virtual_memory()
         disk_info = psutil.disk_usage(Sysfuncts[2])
         
@@ -126,9 +121,6 @@ class Sysdata:
 }
         return data
 
-system = Sysdata()
-system.get_top_processes()
-system.get_telemetry()
 
 
 
