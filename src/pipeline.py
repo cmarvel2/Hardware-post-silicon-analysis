@@ -1,5 +1,5 @@
-from system_data import Sysdata
-from data_manager import Data_formatter
+from collectors.system_data import Sysdata
+from transformers.data_manager import Data_formatter
 from dotenv import load_dotenv
 import os
 import datetime

@@ -119,7 +119,10 @@ class Sysdata:
                 "GPU Memory Utilization %": [float(",".join(gpu_info.get("MemUtilization", '0')))],
                 "GPU Temperature C": [float(",".join(gpu_info.get("Temperature", '0')))]
 }
+        print(data)
         return data
+sysdata = Sysdata()
+sysdata.get_telemetry()
 
 
 

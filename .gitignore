@@ -1,2 +1,5 @@
 #ignoring passwords
 .env
+utils
+__pycache__
+
