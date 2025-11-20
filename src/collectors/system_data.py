@@ -33,7 +33,7 @@ class Sysdata:
         
         def sortmem(mem):
             return mem['memory_percent']
-        
+        sort(key=lambda mem: mem['memory_percent'])
         UniqProcesslist.sort(key=sortmem, reverse=True)
         return UniqProcesslist[:5]
     

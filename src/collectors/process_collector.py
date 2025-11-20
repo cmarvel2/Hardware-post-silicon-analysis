@@ -1,36 +1,33 @@
-class Sysdata:
-    def get_top_processes(self):
-        Processlist = []
-        UniqProcesslist =[]
+import psutil
+import pprint
+def get_top_processes():
+    processes = []
+    new_dict = {}
 
-        for p in psutil.process_iter(['name']):
-            try:
-                process = psutil.Process(pid=p.pid)
-                Processlist.append(process.as_dict(attrs= ['name','cpu_percent','memory_percent'] ))
-            except psutil.NoSuchProcess(pid=p.pid):
-                pass
+    for p in psutil.process_iter():
+        processes.append(p.as_dict(attrs= ['name','cpu_percent','memory_percent']))
 
-        for process in Processlist:
-            for k,v in process.items():
-                if k == 'memory_percent' and k:
-                      process[k] = round(v,1)
+    for name in processes:
+        if name.get('name') not in new_dict:
+            new_dict[name.get('name')] = name
+        else:
+            new_dict[name.get('name')]['cpu_percent'] += name['cpu_percent']
+            new_dict[name.get('name')]['memory_percent'] += name['memory_percent']
 
-        for process1 in Processlist: 
-                
-                names_in_uniq_list = [p['name'] for p in UniqProcesslist]
+    pprint.pp(sorted(new_dict, key=lambda mem: int(mem['memory_percent'])))
 
-                if process1['name'] not in names_in_uniq_list:
-                    UniqProcesslist.append(process1)
-                else:
-                    for process2 in UniqProcesslist:
-                        if process1['name'] == process2['name']:
-                            process2['memory_percent'] += process1.get('memory_percent',0)
-                            process2['cpu_percent'] += process1.get('cpu_percent',0)
-                            break
 
+            
+    '''try:
+            process = psutil.Process(pid=p.pid)
+            print(process)
+            Processlist.append(process.as_dict(attrs= ['name','cpu_percent','memory_percent'] ))
+        except psutil.NoSuchProcess(pid=p.pid):
+            pass'''
         
-        def sortmem(mem):
+    '''def sortmem(mem):
             return mem['memory_percent']
         
         UniqProcesslist.sort(key=sortmem, reverse=True)
-        return UniqProcesslist[:5]
+        return UniqProcesslist[:5]'''
+get_top_processes()
