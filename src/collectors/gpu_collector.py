@@ -5,13 +5,13 @@ def get_gpu_info():
             gpus = GPUtil.getGPUs()
             for index, gpu in enumerate(gpus):
                 gpu_list.append({
-                    "GPU": index,
-                    "name": gpu.name,
-                    "total_memory": gpu.memoryTotal,
-                    "used_memory": gpu.memoryUsed,
-                    "utilization": gpu.load,
-                    "memory_utilization": gpu.memoryUtil,
-                    "temperature": gpu.temperature
+                    "gpu": index,
+                    "gpu_name": gpu.name,
+                    "total_gpu_memory": gpu.memoryTotal,
+                    "used_gpu_memory": gpu.memoryUsed,
+                    "gpu_utilization": gpu.load,
+                    "gpu_memory_utilization": gpu.memoryUtil,
+                    "gpu_temp": gpu.temperature
                 })
 
             return gpu_list

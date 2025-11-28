@@ -8,8 +8,8 @@ def get_static_cpu_data():
     try: 
         return {
             "cpu_brand": cpuinfo.get_cpu_info()['brand_raw'],
-            "cores": psutil.cpu_count(logical=False),
-            "logical_processors": psutil.cpu_count()
+            "p_cores": psutil.cpu_count(logical=False),
+            "l_cores": psutil.cpu_count()
         }
     except:
         pass 
@@ -29,16 +29,16 @@ def get_cpu_usage():
             
             
             return {
-                "utilization": psutil.cpu_percent(interval=0.1),
-                "frequency": current_speed_mhz
+                "cpu_utilization": psutil.cpu_percent(interval=0.1),
+                "cpu_frequency": current_speed_mhz
             }
             
         elif platform.system() == "Linux":
             Lin_mhz = psutil.cpu_freq().current
 
             return{
-                "utilization": psutil.cpu_percent(interval=0.1),
-                "frequency": Lin_mhz
+                "cpu_utilization": psutil.cpu_percent(interval=0.1),
+                "cpu_frequency": Lin_mhz
             }
     except:
         pass
@@ -46,10 +46,10 @@ def get_cpu_usage():
 def get_cpu_temps():
     try:
         if platform.system() == "Windows":
-            return {"temps": round(WinTmp.CPU_Temp(), 1)}
+            return {"cpu_temp": round(WinTmp.CPU_Temp(), 1)}
 
         elif platform.system() == "Linux":
-            return {"temps": psutil.sensors._temperatures()['coretemp'][0].current}
+            return {"cpu_temp": psutil.sensors._temperatures()['coretemp'][0].current}
     except:
         pass
 

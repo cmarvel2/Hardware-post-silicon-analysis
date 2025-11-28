@@ -1,25 +1,23 @@
-from collectors.system_data import Sysdata
-from transformers.data_manager import Data_formatter
-from dotenv import load_dotenv
-import os
-import datetime
+from collectors import *
+from transformers import telemetry_transformer
 
 
-def main():
-    system = Sysdata()
-    processesinfo = system.get_top_processes()
-    hardwareinfo = system.get_telemetry()
+def collect_all_data():
+    cpu = cpu_collector.get_static_cpu_data()
+    cpu1 = cpu_collector.get_cpu_usage()
+    cpu2 = cpu_collector.get_cpu_temps()
+    gpu = gpu_collector.get_gpu_info()
+    disk = disk_collector.get_disk_info()
+    memory = memory_collector.get_memory_info()
+    processs = process_collector.get_top_processes()
 
-    currtime = datetime.datetime.now()
-    load_dotenv()
-    user = os.getenv("PGUSER")
-    password = os.getenv("PGPASSWORD")
-    host = os.getenv("PGHOST")
-    port = os.getenv("PGPORT")
-    db = os.getenv("PGDB")
+    
+def transform_all_data():
+    tcpu = telemetry_transformer.cpu_agg_transformer(cpu,cpu1,cpu2)
+    tgpu = telemetry_transformer.gpu_transformer(gpu)
+    tmem = telemetry_transformer.memory_transformer(memory)
+    tdisk = telemetry_transformer.disk_transformer(disk)
 
-    formatteddata = Data_formatter(hardwareinfo,processesinfo,currtime)
-    formatteddata.sql_connector(user, password, host, port, db)
+    hw = telemetry_transformer.hardware_aggregate(tcpu, tgpu, tmem, tdisk)
 
-if __name__ == "__main__":
-    main()
+    print(hw)
