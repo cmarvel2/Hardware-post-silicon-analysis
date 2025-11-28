@@ -1,9 +1,20 @@
 import psutil
-import pprint
+import pandas as pd
+
 def get_top_processes():
     processes = []
 
+
     for p in psutil.process_iter():
-        processes.append(p.as_dict(attrs= ['pid','name','cpu_percent','memory_percent']))
+        with p.oneshot():
+            processes.append({
+            'name': p.name(),
+            'cpu_percent': p.cpu_percent(),
+            'memory_percent': p.memory_percent()
+
+        })
+    processes.sort(key=lambda mem: mem['memory_percent'], reverse=True)
+    
 
     return processes
+   
