@@ -47,18 +47,23 @@ def disk_transformer(rawdisk):
 
     return disks
 
-def process_transformer():
-    pass
+def process_transformer(plist):
+    new_proc_list = []
 
-def hardware_aggregate(tcpu,tgpu,tmem,tdisk):
+    for process in plist:
+        new_proc_list.append({
+            'pid': process['pid'],
+            'name': process['name'],
+            'memory_percent': round(process['memory_percent'], 1),
+            'cpu_percent': round(process['cpu_percent'], 1)
+        })
 
+    return new_proc_list
 
-    hwagg = {}
-    hwagg.update(tcpu)
-    hwagg.update(tmem)
-    hwagg.update(tdisk)
-    hwagg.update(tgpu)
+def cpu_mem_aggregate(tcpu, tmem):
+    cpumem = {}
 
-    #df = pd.DataFrame([hwagg])
-
-    return hwagg
+    cpumem.update(tcpu)
+    cpumem.update(tmem)
+    
+    return cpumem

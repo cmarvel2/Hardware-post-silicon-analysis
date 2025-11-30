@@ -11,16 +11,15 @@ def run_pipeline():
     memory = memory_collector.get_memory_info()
     processs = process_collector.get_top_processes()
 
-        
-
     tcpu = telemetry_transformer.cpu_agg_transformer(cpu,cpu1,cpu2)
-    tgpu = telemetry_transformer.gpu_transformer(gpu)
     tmem = telemetry_transformer.memory_transformer(memory)
-    tdisk = telemetry_transformer.disk_transformer(disk)
+    tprocess = telemetry_transformer.process_transformer(processs)
 
-    hw = telemetry_transformer.hardware_aggregate(tcpu, tgpu, tmem, tdisk)
+    tgpu = telemetry_transformer.gpu_transformer(gpu)
+    tdisk = telemetry_transformer.disk_transformer(disk)
+    hwagg = telemetry_transformer.cpu_mem_aggregate(tcpu, tmem,)
     
-    print(hw)
+    
 
 run_pipeline()
 
