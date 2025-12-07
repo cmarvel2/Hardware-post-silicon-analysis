@@ -1,12 +1,11 @@
 import psutil
 
+
 def get_top_processes():
     processes = []
-    try:
-        for process in psutil.process_iter():
-            processes.append(process.as_dict(attrs= ['pid', 'name','cpu_percent','memory_percent'] ))
+    for process in psutil.process_iter():
+        processes.append(process.as_dict(attrs= ['pid', 'name','cpu_percent','memory_percent'] ))
 
-        return processes
-    except:
-        pass
+    return processes
+    
 
