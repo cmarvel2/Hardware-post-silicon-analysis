@@ -5,12 +5,11 @@ from pathlib import Path
 import pprint
 import clr
 
-if platform.system() == "Windows":
-    currfile = Path(__file__).parent.resolve()
-    librefile = (currfile / ".." / "libs" / "LibreHardwareMonitorLib.dll").resolve()
-        
-    clr.AddReference(str(librefile))
-    from LibreHardwareMonitor.Hardware import Computer, HardwareType, SensorType, IVisitor
+currfile = Path(__file__).parent.resolve()
+librefile = (currfile / ".." / "libs" / "LibreHardwareMonitorLib.dll").resolve()
+    
+clr.AddReference(str(librefile))
+from LibreHardwareMonitor.Hardware import Computer, HardwareType, SensorType
 
 def get_static_cpu_data():
  
@@ -20,56 +19,54 @@ def get_static_cpu_data():
         "l_cores": psutil.cpu_count()
     }
  
+def get_cpu_metrics():
 
-def get_cpu_usage():
-    
-    if platform.system() == "Windows":
+    computer = Computer()
+    computer.IsCpuEnabled = True
+    computer.IsMotherboardEnabled = True
+    computer.Open()
 
-        computer = Computer()
-        computer.IsCpuEnabled = True
-        computer.IsMotherboardEnabled = True
-        computer.Open()
-
-        wper_cpu_freq = {}
-        wper_cpu_percent = {}
-        wper_cpu_temps = {}
-        wper_cpu_volts = {}
-        wper_cpu_watts = {}
+    wper_cpu_clock = {}
+    wper_cpu_load = {}
+    wper_cpu_temps = {}
+    wper_cpu_volts = {}
+    wper_cpu_power = {}
 
 
-        for hardware in computer.Hardware:
-            if hardware.HardwareType == HardwareType.Cpu:
-                     
-                hardware.Update()
-
-                for sensor in hardware.Sensors:
-                    if sensor.SensorType == SensorType.Load:
-                        wper_cpu_percent[sensor.Name] =sensor.Value
-
-                    elif sensor.SensorType == SensorType.Clock:
-                        wper_cpu_freq[sensor.Name] =sensor.Value
-
-                    elif sensor.SensorType == SensorType.Temperature:
-                        wper_cpu_temps[sensor.Name] =sensor.Value
-
-                    elif sensor.SensorType == SensorType.Voltage:
-                        wper_cpu_volts[sensor.Name] = sensor.Value
+    for hardware in computer.Hardware:
+        print(hardware.HardwareType)
+        
+        if hardware.HardwareType == HardwareType.Cpu:
+            hardware.Update()
 
             for sensor in hardware.Sensors:
-                if sensor.SensorType == SensorType.Power:
-                    wper_cpu_watts[sensor.Name] = sensor.Value
+                if sensor.SensorType == SensorType.Load:
+                    wper_cpu_load[sensor.Name] =sensor.Value
 
-        computer.Close()
-            
-        return {
-            "utilization_per_cpu": wper_cpu_percent,
-            "frequency_per_cpu": wper_cpu_freq,
-            "temperature_per_cpu": wper_cpu_temps,
-            "voltage_per_cpu": wper_cpu_volts,
-            "power_per_cpu": wper_cpu_watts
-        }
-            
-pprint.pprint(get_cpu_usage())
+                elif sensor.SensorType == SensorType.Clock:
+                    wper_cpu_clock[sensor.Name] =sensor.Value
+
+                elif sensor.SensorType == SensorType.Temperature:
+                    wper_cpu_temps[sensor.Name] =sensor.Value
+
+                elif sensor.SensorType == SensorType.Voltage:
+                    wper_cpu_volts[sensor.Name] = sensor.Value
+
+        for sensor in hardware.Sensors:
+            if sensor.SensorType == SensorType.Power:
+                wper_cpu_power[sensor.Name] = sensor.Value
+
+    computer.Close()
+        
+    return {
+        "load_per_cpu": wper_cpu_load,
+        "clock_per_cpu": wper_cpu_clock,
+        "temperature_per_cpu": wper_cpu_temps,
+        "voltage_per_cpu": wper_cpu_volts,
+        "power_per_cpu": wper_cpu_power
+    }
+        
+get_cpu_metrics()
 
 
 
