@@ -1,8 +1,16 @@
 import platform
-import wmi
 import psutil
 import cpuinfo 
-import WinTmp
+from pathlib import Path
+import pprint
+import clr
+
+if platform.system() == "Windows":
+    currfile = Path(__file__).parent.resolve()
+    librefile = (currfile / ".." / "libs" / "LibreHardwareMonitorLib.dll").resolve()
+        
+    clr.AddReference(str(librefile))
+    from LibreHardwareMonitor.Hardware import Computer, HardwareType, SensorType, IVisitor
 
 def get_static_cpu_data():
  
@@ -16,37 +24,53 @@ def get_static_cpu_data():
 def get_cpu_usage():
     
     if platform.system() == "Windows":
-        freq = wmi.WMI(namespace="root\\cimv2")
 
-        processor_info = freq.Win32_Processor()[0]
-        max_speed_mhz = int(processor_info.MaxClockSpeed)
-                    
-        freq_data = freq.Win32_PerfFormattedData_Counters_ProcessorInformation(Name="_Total")[0]
-        freq_percent = int(freq_data.PercentProcessorPerformance)
-        
-        current_speed_mhz = max_speed_mhz * (freq_percent / 100.0)
-            
+        computer = Computer()
+        computer.IsCpuEnabled = True
+        computer.IsMotherboardEnabled = True
+        computer.Open()
+
+        wper_cpu_freq = {}
+        wper_cpu_percent = {}
+        wper_cpu_temps = {}
+        wper_cpu_volts = {}
+        wper_cpu_watts = {}
+
+
+        for hardware in computer.Hardware:
+            if hardware.HardwareType == HardwareType.Cpu:
+                     
+                hardware.Update()
+
+                for sensor in hardware.Sensors:
+                    if sensor.SensorType == SensorType.Load:
+                        wper_cpu_percent[sensor.Name] =sensor.Value
+
+                    elif sensor.SensorType == SensorType.Clock:
+                        wper_cpu_freq[sensor.Name] =sensor.Value
+
+                    elif sensor.SensorType == SensorType.Temperature:
+                        wper_cpu_temps[sensor.Name] =sensor.Value
+
+                    elif sensor.SensorType == SensorType.Voltage:
+                        wper_cpu_volts[sensor.Name] = sensor.Value
+
+            for sensor in hardware.Sensors:
+                if sensor.SensorType == SensorType.Power:
+                    wper_cpu_watts[sensor.Name] = sensor.Value
+
+        computer.Close()
             
         return {
-            "cpu_utilization": psutil.cpu_percent(interval=0.1),
-            "cpu_frequency": current_speed_mhz
+            "utilization_per_cpu": wper_cpu_percent,
+            "frequency_per_cpu": wper_cpu_freq,
+            "temperature_per_cpu": wper_cpu_temps,
+            "voltage_per_cpu": wper_cpu_volts,
+            "power_per_cpu": wper_cpu_watts
         }
             
-    elif platform.system() == "Linux":
-        Lin_mhz = psutil.cpu_freq().current
+pprint.pprint(get_cpu_usage())
 
-        return{
-            "cpu_utilization": psutil.cpu_percent(interval=0.1),
-            "cpu_frequency": Lin_mhz
-        }
-
-def get_cpu_temps():
-
-    if platform.system() == "Windows":
-        return {"cpu_temp": round(WinTmp.CPU_Temp(), 1)}
-
-    elif platform.system() == "Linux":
-        return {"cpu_temp": psutil.sensors._temperatures()['coretemp'][0].current}
 
 
 
