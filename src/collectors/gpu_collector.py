@@ -16,39 +16,40 @@ def get_gpu_metrics():
 
     gpus = []
 
-    wgpu_smalldata = {}
+    wgpu_clock = {}
     wgpu_load = {}
     wgpu_temperature = {}
     wgpu_power = {}
-    wgpu_throughput = {}
+    wgpu_fan = {}
 
     for hardware in computer.Hardware:
         if hardware.HardwareType == HardwareType.GpuAmd:
                     
             hardware.Update()
-            agpuname = hardware.Name
 
             for sensor in hardware.Sensors:
+                
                 if sensor.SensorType == SensorType.Load:
                     wgpu_load[sensor.Name] =sensor.Value
 
-                elif sensor.SensorType == SensorType.SmallData:
-                    wgpu_smalldata[sensor.Name] =sensor.Value
+                elif sensor.SensorType == SensorType.Clock:
+                    wgpu_clock[sensor.Name] =sensor.Value
 
                 elif sensor.SensorType == SensorType.Temperature:
                     wgpu_temperature[sensor.Name] =sensor.Value
 
-                elif sensor.SensorType == SensorType.Throughput:
-                    wgpu_throughput[sensor.Name] = sensor.Value
+                elif sensor.SensorType == SensorType.Fan:
+                    wgpu_fan[sensor.Name] = sensor.Value
 
                 elif sensor.SensorType == SensorType.Power:
                     wgpu_power[sensor.Name] = sensor.Value
 
+
             gpus.append({hardware.Name: {
             "gpu_load": wgpu_load,
-            "gpu_smalldata": wgpu_smalldata,
+            "gpu_clock": wgpu_clock,
             "gpu_temperature": wgpu_temperature,
-            "gpu_throughput": wgpu_throughput,
+            "gpu_fan": wgpu_fan,
             "gpu_power": wgpu_power
             }})
 
@@ -60,23 +61,23 @@ def get_gpu_metrics():
                 if sensor.SensorType == SensorType.Load:
                     wgpu_load[sensor.Name] =sensor.Value
 
-                elif sensor.SensorType == SensorType.SmallData:
-                    wgpu_smalldata[sensor.Name] =sensor.Value
+                elif sensor.SensorType == SensorType.Clock:
+                    wgpu_clock[sensor.Name] =sensor.Value
 
                 elif sensor.SensorType == SensorType.Temperature:
                     wgpu_temperature[sensor.Name] =sensor.Value
 
-                elif sensor.SensorType == SensorType.Throughput:
-                    wgpu_throughput[sensor.Name] = sensor.Value
+                elif sensor.SensorType == SensorType.Fan:
+                    wgpu_fan[sensor.Name] = sensor.Value
 
                 elif sensor.SensorType == SensorType.Power:
                     wgpu_power[sensor.Name] = sensor.Value
 
             gpus.append({hardware.Name: {
             "gpu_load": wgpu_load,
-            "gpu_smalldata": wgpu_smalldata,
+            "gpu_clock": wgpu_clock,
             "gpu_temperature": wgpu_temperature,
-            "gpu_throughput": wgpu_throughput,
+            "gpu_fan": wgpu_fan,
             "gpu_power": wgpu_power
             }})
 

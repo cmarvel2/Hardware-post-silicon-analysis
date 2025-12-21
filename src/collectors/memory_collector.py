@@ -1,10 +1,44 @@
-import psutil
+from pathlib import Path
+import clr
+import pprint
 
-def get_memory_info():
-    mem_info = psutil.virtual_memory()
+currfile = Path(__file__).parent.resolve()
+librefile = (currfile / ".." / "libs" / "LibreHardwareMonitorLib.dll").resolve()
+    
+clr.AddReference(str(librefile))
+from LibreHardwareMonitor.Hardware import Computer, HardwareType, SensorType
+
+def get_memory_metrics():
+
+    computer = Computer()
+    computer.IsMemoryEnabled = True
+    computer.Open()
+
+    wmemory_data  = {}
+    wmemory_clock = {}
+    wmemory_load = {}
+
+    for hardware in computer.Hardware:
+        if hardware.HardwareType == HardwareType.Memory:
+            
+            hardware.Update()
+
+            for sensor in hardware.Sensors:
+                if sensor.SensorType == SensorType.Data:
+                    wmemory_data[sensor.Name] = sensor.Value
+
+                if sensor.SensorType == SensorType.Clock:
+                    wmemory_clock[sensor.Name] = sensor.Value
+
+                if sensor.SensorType == SensorType.Load:
+                    wmemory_load[sensor.Name] = sensor.Value
+
+    computer.Close()
         
-    return{
-        "total_sys_memory": mem_info.total,
-        "used_sys_memory": mem_info.used,
-        "sys_memory_utilization": mem_info.percent,
+    return {
+        "memory_load": wmemory_load,
+        "memory_clock": wmemory_clock,
+        "memory_data": wmemory_data,
     }
+            
+pprint.pprint(get_memory_metrics())

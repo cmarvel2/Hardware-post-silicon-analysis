@@ -1,4 +1,3 @@
-import platform
 import psutil
 import cpuinfo 
 from pathlib import Path
@@ -9,7 +8,7 @@ currfile = Path(__file__).parent.resolve()
 librefile = (currfile / ".." / "libs" / "LibreHardwareMonitorLib.dll").resolve()
     
 clr.AddReference(str(librefile))
-from LibreHardwareMonitor.Hardware import Computer, HardwareType, SensorType
+from LibreHardwareMonitor.Hardware import Computer, HardwareType, SensorType 
 
 def get_static_cpu_data():
  
@@ -34,12 +33,12 @@ def get_cpu_metrics():
 
 
     for hardware in computer.Hardware:
-        print(hardware.HardwareType)
         
         if hardware.HardwareType == HardwareType.Cpu:
             hardware.Update()
 
             for sensor in hardware.Sensors:
+        
                 if sensor.SensorType == SensorType.Load:
                     wper_cpu_load[sensor.Name] =sensor.Value
 
@@ -48,6 +47,7 @@ def get_cpu_metrics():
 
                 elif sensor.SensorType == SensorType.Temperature:
                     wper_cpu_temps[sensor.Name] =sensor.Value
+
 
                 elif sensor.SensorType == SensorType.Voltage:
                     wper_cpu_volts[sensor.Name] = sensor.Value
@@ -63,10 +63,10 @@ def get_cpu_metrics():
         "clock_per_cpu": wper_cpu_clock,
         "temperature_per_cpu": wper_cpu_temps,
         "voltage_per_cpu": wper_cpu_volts,
-        "power_per_cpu": wper_cpu_power
+        "power_per_cpu": wper_cpu_power,
     }
         
-get_cpu_metrics()
+pprint.pprint(get_cpu_metrics())
 
 
 
