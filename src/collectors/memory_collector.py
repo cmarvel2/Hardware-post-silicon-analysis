@@ -27,9 +27,6 @@ def get_memory_metrics():
                 if sensor.SensorType == SensorType.Data:
                     wmemory_data[sensor.Name] = sensor.Value
 
-                if sensor.SensorType == SensorType.Clock:
-                    wmemory_clock[sensor.Name] = sensor.Value
-
                 if sensor.SensorType == SensorType.Load:
                     wmemory_load[sensor.Name] = sensor.Value
 
@@ -37,8 +34,6 @@ def get_memory_metrics():
         
     return {
         "memory_load": wmemory_load,
-        "memory_clock": wmemory_clock,
         "memory_data": wmemory_data,
     }
             
-pprint.pprint(get_memory_metrics())
