@@ -1,5 +1,5 @@
 from collectors import *
-from transformers import telemetry_transformer
+from transformers import hw_data_transformations
 from utils.logger  import setup_logs, function_logs
 from dotenv import load_dotenv
 import os
