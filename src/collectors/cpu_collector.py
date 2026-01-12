@@ -1,5 +1,5 @@
 from pathlib import Path
-import pprint
+import pprint as pp
 import clr
 
 currfile = Path(__file__).parent.resolve()
@@ -49,13 +49,14 @@ def get_cpu_metrics():
     computer.Close()
         
     return {cpuname :{
-        "load_per_cpu": wper_cpu_load,
-        "clock_per_cpu": wper_cpu_clock,
-        "temperature_per_cpu": wper_cpu_temps,
-        "power_per_cpu": wper_cpu_power,
+        "cpu_load": wper_cpu_load,
+        "cpu_clock": wper_cpu_clock,
+        "cpu_temperature": wper_cpu_temps,
+        "cpu_power": wper_cpu_power,
     }}
         
 
+pp.pprint(get_cpu_metrics())
 
 
 

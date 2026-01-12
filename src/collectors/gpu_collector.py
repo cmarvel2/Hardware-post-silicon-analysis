@@ -64,9 +64,6 @@ def get_gpu_metrics():
                 elif sensor.SensorType == SensorType.Temperature:
                     wgpu_temperature[sensor.Name] =sensor.Value
 
-                elif sensor.SensorType == SensorType.Fan:
-                    wgpu_fan[sensor.Name] = sensor.Value
-
                 elif sensor.SensorType == SensorType.Power:
                     wgpu_power[sensor.Name] = sensor.Value
 
@@ -74,7 +71,6 @@ def get_gpu_metrics():
             "gpu_load": wgpu_load,
             "gpu_clock": wgpu_clock,
             "gpu_temperature": wgpu_temperature,
-            "gpu_fan": wgpu_fan,
             "gpu_power": wgpu_power
             }})
 
@@ -82,3 +78,4 @@ def get_gpu_metrics():
 
     return gpus
                 
+pprint.pprint(get_gpu_metrics())

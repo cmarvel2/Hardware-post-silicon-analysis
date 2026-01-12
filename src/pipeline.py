@@ -6,11 +6,11 @@ import os
 import datetime
 
 load_dotenv()
-user = os.getenv("PGUSER")
-password = os.getenv("PGPASSWORD")
-host = os.getenv("PGHOST")
-port = os.getenv("PGPORT")
-db = os.getenv("PGDB")
+dbhost = os.getenv("DBHOST")
+dbname = os.getenv("DBNAME")
+dbuser = os.getenv("DBUSER")
+dbpassword = os.getenv("DBPASSWORD")
+sslmode = os.getenv("SSLMODE")
 
 log = setup_logs()
 
