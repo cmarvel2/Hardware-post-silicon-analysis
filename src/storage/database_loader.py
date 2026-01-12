@@ -24,7 +24,8 @@ class Database_Uploader:
     def tables_setup(self):
         self.cur.execute('''
             CREATE TABLE IF NOT EXISTS observed_machines (
-                    machine_uuid UUID PRIMARY KEY,
+                    machine_id SERIAL PRIMARY KEY,
+                    machine_uuid UUID UNIQUE NOT NULL,
                     machine_host_name TEXT,
                     cpu_model TEXT,
                     gpu_model TEXT  
@@ -49,7 +50,7 @@ class Database_Uploader:
                     )''')
         
         self.cur.execute('''
-            CREATE TABLE IF NOT EXISTS workload_programs (
+            CREATE TABLE IF NOT EXISTS workload_types (
                     workload_id SERIAL PRIMARY KEY, 
                     workload_name TEXT UNIQUE NOT NULL
                     )  
@@ -58,17 +59,16 @@ class Database_Uploader:
         self.cur.execute('''
             CREATE TABLE IF NOT EXISTS raw_workload_run_data (
                     workload_run_id SERIAL PRIMARY KEY,
-                    machine_uuid UUID REFERENCES observed_machines(machine_uuid) NOT NULL,
-                    workload_id INTEGER REFERENCES workload_programs(workload_id) NOT NULL,
+                    machine_id INTEGER REFERENCES observed_machines(machine_id) NOT NULL,
+                    workload_id INTEGER REFERENCES workload_types(workload_id) NOT NULL,
                     start_time TIMESTAMP NOT NULL,
                     end_time TIMESTAMP
-
                     )''')
 
         self.cur.execute('''
             CREATE TABLE IF NOT EXISTS raw_sensor_data (
                     sensor_entry_id SERIAL PRIMARY KEY,
-                    machine_uuid UUID REFERENCES observed_machines(machine_uuid) NOT NULL,
+                    machine_id INTEGER REFERENCES observed_machines(machine_id) NOT NULL,
                     workload_run_id INTEGER REFERENCES raw_workload_run_data(workload_run_id) NOT NULL,
                     hardware_id INTEGER REFERENCES hardware_types(hardware_id) NOT NULL,
                     hardware_field_id INTEGER REFERENCES hardware_fields(field_id) NOT NULL,
@@ -97,14 +97,14 @@ class Database_Uploader:
         self.cur.execute(
              '''INSERT INTO observed_machines 
                 (machine_uuid, machine_host_name, cpu_model, gpu_model) 
-                VALUES (?,?,?,?,)
+                VALUES (%s,%s,%s,%s,)
                 ON CONFLICT (machine_uuid) DO NOTHING''',
                 (self.uuid,
                 self.hostname,
                 cpumodels, 
                 gpumodels))
         
-        self.conn.commit()
+        
         
     def insert_into_types_cpudata(self, cpudata):
             for hwname, field in cpudata.items():
@@ -112,26 +112,25 @@ class Database_Uploader:
                     for hwsubpart, _ in hwsubpartdict.items():
                         self.cur.execute(
                             '''INSERT INTO hardware_types (hardware_name)
-                                VALUES (?,)
-                                ON CONFLICT (hardware_name) DO NOTHING''',
+                                VALUES (%s,)
+                                ON CONFLICT DO NOTHING''',
                                 (hwname)
                                 )
                         
                         self.cur.execute(
                             '''INSERT INTO hardware_fields (hardware_field)
-                                VALUES (?,)
-                                ON CONFLICT (hardware_field) DO NOTHING'''
+                                VALUES (%s,)
+                                ON CONFLICT DO NOTHING'''
                                 (hwfield)
                                 )
                         
                         self.cur.execute(
                             '''INSERT INTO sensor_types (sensor_name)
-                                VALUES(?)
-                                ON CONFLICT (sensor_name) DO NOTHING'''
+                                VALUES(%s,)
+                                ON CONFLICT DO NOTHING'''
                                 (hwsubpart)
                                 )
                         
-            self.conn.commit()
 
     def insert_into_types_gpudata(self, gpudata):
         for gpu in gpudata:                    
@@ -140,22 +139,22 @@ class Database_Uploader:
                     for hwsubpart, _ in hwsubpartdict.items():
                         self.cur.execute(
                             '''INSERT INTO hardware_types (hardware_name)
-                                VALUES (?,)
-                                ON CONFLICT (hardware_name) DO NOTHING''',
+                                VALUES (%s,)
+                                ON CONFLICT DO NOTHING''',
                                 (hwname)
                                 )
                         
                         self.cur.execute(
                             '''INSERT INTO hardware_fields (hardware_field)
-                                VALUES (?,)
-                                ON CONFLICT (hardware_field) DO NOTHING'''
+                                VALUES (%s,)
+                                ON CONFLICT DO NOTHING'''
                                 (hwfield)
                                 )
                         
                         self.cur.execute(
                             '''INSERT INTO sensor_types (sensor_name)
-                                VALUES(?)
-                                ON CONFLICT (sensor_name) DO NOTHING'''
+                                VALUES(%s,)
+                                ON CONFLICT DO NOTHING'''
                                 (hwsubpart)
                                 )
         
@@ -166,25 +165,54 @@ class Database_Uploader:
             for sensorname, _ in field.items():
                 self.cur.execute(
                     '''INSERT INTO hardware_types (hardware_name)
-                        VALUES (?,)
-                        ON CONFLICT (hardware_name) DO NOTHING''',
+                        VALUES (%s,)
+                        ON CONFLICT DO NOTHING''',
                         ("Random Access Memory")
                         )
                         
                 self.cur.execute(
                     '''INSERT INTO hardware_fields (hardware_field)
-                        VALUES (?,)
-                        ON CONFLICT (hardware_field) DO NOTHING'''
+                        VALUES (%s,)
+                        ON CONFLICT DO NOTHING'''
                         (hwfieldname)
                         )
                         
                 self.cur.execute(
                     '''INSERT INTO sensor_types (sensor_name)
-                        VALUES(?)
-                        ON CONFLICT (sensor_name) DO NOTHING'''
+                        VALUES(%s,)
+                        ON CONFLICT DO NOTHING'''
                         (sensorname)
                         )
 
-    def insert_into_workload(self, workloadstring):
-        pass
-        #self.cur.execute('''INSERT INTO )
+    def insert_into_workload_types(self, testlist):
+        for test_type in testlist:
+            self.cur.execute(
+                '''INSERT INTO workload_types (workload_name)
+                VALUES(%s)
+                ON CONFLICT DO NOTHING'''
+                (test_type)
+                )
+
+    def insert_into_workload_runs(self, workloadstring, startime, endtime):
+        self.cur.execute('SELECT machine_id FROM observed_machines WHERE machine_uuid = %s', (self.uuid))
+        machine_id = self.cur.fetchone()[0]
+
+        self.cur.execute('SELECT workload_id FROM workload_types WHERE workload_name = %s', (workloadstring))
+        workload_id = self.cur.fetchone()[0]
+
+        self.cur.execute(
+            '''INSERT INTO raw_workload_run_data (machine_id, workload_id, start_time, end_time)
+                VALUES(%s, %s, %s, %s,)
+                ON CONFLICT (start_time, end_time) DO NOTHING'''
+                (machine_id,
+                 workload_id,
+                 startime,
+                 endtime)
+                )
+        
+    def insert_into_sensor_data():
+
+
+
+
+    
