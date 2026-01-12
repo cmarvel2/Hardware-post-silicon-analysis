@@ -1,8 +1,7 @@
 import psycopg
 import platform
 import urllib.parse
-import psutil
-from transformers import hw_data_transformations
+from utils import machine_uuid
 
 
 
@@ -19,7 +18,7 @@ class Database_Uploader:
         self.cur = self.conn.cursor()
 
         self.hostname = platform.node()
-        self.uuid = hw_data_transformations.get_machine_uuid()
+        self.uuid = machine_uuid.get_machine_uuid()
 
 
     def tables_setup(self):
@@ -187,5 +186,5 @@ class Database_Uploader:
                         )
 
     def insert_into_workload(self, workloadstring):
-
-        self.cur.execute('''INSERT INTO )
+        pass
+        #self.cur.execute('''INSERT INTO )
