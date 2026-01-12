@@ -56,8 +56,6 @@ def get_cpu_metrics():
     }}
         
 
-pp.pprint(get_cpu_metrics())
-
 
 
     

@@ -78,4 +78,3 @@ def get_gpu_metrics():
 
     return gpus
                 
-pprint.pprint(get_gpu_metrics())
