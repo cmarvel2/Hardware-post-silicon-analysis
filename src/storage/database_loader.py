@@ -1,7 +1,6 @@
 import psycopg
 import platform
 import urllib.parse
-from utils import machine_uuid
 from dataclasses import dataclass
 
 @dataclass(frozen=True)
@@ -12,7 +11,7 @@ class SensorReading:
     sensorvalue: float
 
 class Database_Uploader:
-    def __init__(self, host, dbname, dbuser, dbpassword, sslmode):
+    def __init__(self, host, dbname, dbuser, dbpassword, sslmode, machine_uuid):
         self.host = host
         self.dbname = dbname
         self.dbuser = urllib.parse.quote(dbuser)
@@ -23,18 +22,16 @@ class Database_Uploader:
         self.conn = psycopg.connect(self.db_uri)
         self.cur = self.conn.cursor()
 
-        self.hostname = platform.node()
-        self.uuid = machine_uuid.get_machine_uuid()
+        #self.hostname = platform.node()
+        self.uuid = machine_uuid
 
 
     def tables_setup(self):
+
         self.cur.execute('''
             CREATE TABLE IF NOT EXISTS observed_machines (
                     machine_id SERIAL PRIMARY KEY,
-                    machine_uuid UUID UNIQUE NOT NULL,
-                    machine_host_name TEXT,
-                    cpu_model TEXT,
-                    gpu_model TEXT  
+                    machine_uuid UUID UNIQUE NOT NULL 
                     )''')
         
         self.cur.execute('''
@@ -61,15 +58,23 @@ class Database_Uploader:
                     workload_name TEXT UNIQUE NOT NULL
                     )  
                     ''')
+        
+        self.cur.execute('''
+            CREATE TABLE IF NOT EXISTS machine_components (
+                    component_entry_id SERIAL PRIMARY KEY,
+                    machine_id INTEGER REFERENCES observed_machines(machine_id) NOT NULL,
+                    hardware_id INTEGER REFERENCES hardware_types(hardware_id) NOT NULL,
+                    UNIQUE(machine_id, hardware_id)
+                         )''')
 
         self.cur.execute('''
             CREATE TABLE IF NOT EXISTS raw_workload_run_data (
                     workload_run_id SERIAL PRIMARY KEY,
                     machine_id INTEGER REFERENCES observed_machines(machine_id) NOT NULL,
                     workload_id INTEGER REFERENCES workload_types(workload_id) NOT NULL,
-                    start_time TIMESTAMP NOT NULL,
-                    end_time TIMESTAMP,
-                    UNIQUE (machine_id, workload_id, start_time, end_time)
+                    runtime_mins INTEGER NOT NULL,
+                    run_date TIMESTAMP NOT NULL,
+                    UNIQUE (machine_id, workload_id, runtime_mins, run_date)
                     )''')
 
         self.cur.execute('''
@@ -96,7 +101,8 @@ class Database_Uploader:
 
                     hwdatalist.append(SensorReading(sensorhardware=cpuhwname, sensorfield=cpuhwfield, sensorname=cpuhwsubpart, sensorvalue=cpuvalue))
 
-        for gpu in gpudata:                    
+        for gpu in gpudata: 
+                               
             for gpuhwname, gpufield in gpu.items():
                 for gpuhwfield, gpuhwsubpartdict in gpufield.items():
                     for gpuhwsubpart, gpuvalue in gpuhwsubpartdict.items():
@@ -110,30 +116,40 @@ class Database_Uploader:
 
         return hwdatalist
 
-    def insert_into_observed_machines(self, cpudatadict, gpudatadict):
-        cpulist = []
-        gpulist = []
-
-        for cpuname in cpudatadict.keys():
-            cpulist.append(cpuname)
-
-        for gpu in gpudatadict:
-            for gpuname in gpu.keys():
-                gpulist.append(gpuname)
-
-        cpumodels = ','.join(cpulist)
-        gpumodels = ','.join(gpulist)
+    def insert_into_observed_machines(self):
 
         self.cur.execute(
              '''INSERT INTO observed_machines 
-                (machine_uuid, machine_host_name, cpu_model, gpu_model) 
-                VALUES (%s,%s,%s,%s)
-                ON CONFLICT (machine_uuid) DO NOTHING''',
-                (self.uuid,
-                self.hostname,
-                cpumodels, 
-                gpumodels,))
+                (machine_uuid) 
+                VALUES (%s)
+                ON CONFLICT DO NOTHING''',
+                (self.uuid,)
+                )
         
+    def insert_components_into_machines(self, cpudatadict, gpudatadict):
+        processorlist = []
+
+        for cpuname in cpudatadict.keys():
+            processorlist.append(cpuname)
+
+        for gpu in gpudatadict:
+            for gpuname in gpu.keys():
+                processorlist.append(gpuname)
+            
+        self.cur.execute('SELECT machine_id FROM observed_machines WHERE machine_uuid = %s', (self.uuid,))
+        machine_id = self.cur.fetchone()[0]
+
+        for processor_fact in processorlist:
+            self.cur.execute('SELECT hardware_id FROM hardware_types WHERE hardware_name = %s', (processor_fact,))
+            hardware_id = self.cur.fetchone()[0]
+
+            self.cur.execute(
+                '''INSERT INTO machine_components (machine_id, hardware_id)
+                    VALUES (%s, %s)
+                    ON CONFLICT DO NOTHING''',
+                    (machine_id,
+                     hardware_id,)
+                    )
         
     def insert_into_types(self, normalized_hw_data):
         for row in normalized_hw_data:
@@ -167,7 +183,7 @@ class Database_Uploader:
                 (test_type,)
                 )
 
-    def insert_into_workload_runs(self, workloadstring, startime, endtime):
+    def insert_into_workload_runs(self, workloadstring, runtime_mins, run_date):
         self.cur.execute('SELECT machine_id FROM observed_machines WHERE machine_uuid = %s', (self.uuid,))
         machine_id = self.cur.fetchone()[0]
 
@@ -175,30 +191,43 @@ class Database_Uploader:
         workload_id = self.cur.fetchone()[0]
 
         self.cur.execute(
-            '''INSERT INTO raw_workload_run_data (machine_id, workload_id, start_time, end_time)
+            '''INSERT INTO raw_workload_run_data (machine_id, workload_id, runtime_mins, run_date)
                 VALUES(%s, %s, %s, %s)
                 ON CONFLICT DO NOTHING
                 RETURNING workload_run_id''',
                 (machine_id,
                  workload_id,
-                 startime,
-                 endtime,)
+                 runtime_mins,
+                 run_date,)
                 )
-        self.workload_run_id = self.cur.fetchone([0])
+        self.workload_run_id = self.cur.fetchone()[0]
         
-    def insert_into_sensor_data(self):
+    def insert_into_sensor_data(self, normalized_hw_data, timestamp):
         self.cur.execute('SELECT machine_id FROM observed_machines WHERE machine_uuid = %s', (self.uuid,))
         machine_id = self.cur.fetchone()[0]
+        
+        for row in normalized_hw_data:
+            self.cur.execute('SELECT hardware_id FROM hardware_types WHERE hardware_name = %s', (row.sensorhardware,))
+            hardware_id = self.cur.fetchone()[0]
+
+            self.cur.execute('SELECT field_id FROM hardware_fields WHERE hardware_field = %s', (row.sensorfield,))
+            field_id = self.cur.fetchone()[0]
+
+            self.cur.execute('SELECT sensor_id FROM sensor_types WHERE sensor_name = %s', (row.sensorname,))
+            sensortype_id = self.cur.fetchone()[0]
 
         
-        
-        
-        self.cur.execute(
-            '''INSERT INTO raw_sensor_data (machine_id, workload_run_id, hardware_id, hardware_field_id, sensor_id, sensor_value, collection_ts)
-                VALUES(%s, %s, %s, %s, %s, %s, %s)
-                ON CONFLICT''',
-                (machine_id,
-                 self.workload_run_id,)
+            self.cur.execute(
+                '''INSERT INTO raw_sensor_data (machine_id, workload_run_id, hardware_id, hardware_field_id, sensor_id, sensor_value, collection_ts)
+                    VALUES(%s, %s, %s, %s, %s, %s, %s)
+                    ON CONFLICT DO NOTHING''',
+                    (machine_id,
+                    self.workload_run_id,
+                    hardware_id,
+                    field_id,
+                    sensortype_id,
+                    row.sensorvalue,
+                    timestamp,)
         )
 
 

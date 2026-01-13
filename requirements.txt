@@ -1,0 +1,13 @@
+cffi==2.0.0
+clr_loader==0.2.10
+dotenv==0.9.9
+logging==0.4.9.6
+pathlib==1.0.1
+psycopg==3.3.2
+psycopg-binary==3.3.2
+pycparser==2.23
+python-dotenv==1.2.1
+pythonnet==3.0.5
+setuptools==80.9.0
+tzdata==2025.3
+wheel==0.45.1

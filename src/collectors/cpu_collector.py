@@ -1,5 +1,4 @@
 from pathlib import Path
-import pprint as pp
 import clr
 
 currfile = Path(__file__).parent.resolve()

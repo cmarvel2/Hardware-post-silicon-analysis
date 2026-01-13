@@ -20,6 +20,7 @@ def setup_logs(log_file='telemetry.log'):
     return logger
 
 def function_logs(func, logger, *args):
+
     try:
         telemetrydata = func(*args)
         logger.info(f"{func.__name__} sucessfully excuted")

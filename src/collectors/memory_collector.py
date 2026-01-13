@@ -1,6 +1,5 @@
 from pathlib import Path
 import clr
-import pprint
 
 currfile = Path(__file__).parent.resolve()
 librefile = (currfile / ".." / "libs" / "LibreHardwareMonitorLib.dll").resolve()
