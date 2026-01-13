@@ -7,25 +7,26 @@ import os
 import time
 from datetime import datetime
 
-load_dotenv()
-dbhost = os.getenv("DBHOST")
-dbname = os.getenv("DBNAME")
-dbuser = os.getenv("DBUSER")
-dbpassword = os.getenv("DBPASSWORD")
-sslmode = os.getenv("SSLMODE")
-
-endtime = 120
-
-workload_options = ['IDLE','OCCT_CPU_RAM', 'OCCT_CPU', 'OCCT_LINPACK', 'OCCT_MEMORY',
-             'OCCT_3D_ADAPTIVE', 'OCCT_VRAM', 'OCCT_POWER']
-
-chosen_workload = 'IDLE'
-
-log = setup_logs()
-
-uuid = machine_uuid.get_machine_uuid()
-
 def run_pipeline():
+
+    load_dotenv()
+    dbhost = os.getenv("DBHOST")
+    dbname = os.getenv("DBNAME")
+    dbuser = os.getenv("DBUSER")
+    dbpassword = os.getenv("DBPASSWORD")
+    sslmode = os.getenv("SSLMODE")
+
+    endtime = 120
+
+    workload_options = ['IDLE','OCCT_CPU_RAM', 'OCCT_CPU', 'OCCT_LINPACK', 'OCCT_MEMORY',
+                'OCCT_3D_ADAPTIVE', 'OCCT_VRAM', 'OCCT_POWER']
+
+    chosen_workload = 'IDLE'
+
+    log = setup_logs()
+
+    uuid = machine_uuid.get_machine_uuid()
+
     log.info("Pipeline Running")
     dbconnect = database_loader.Database_Uploader(dbhost, dbname, dbuser, dbpassword, sslmode, uuid)
     end = time.time() + (60 * endtime)

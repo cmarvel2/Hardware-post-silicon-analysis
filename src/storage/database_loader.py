@@ -85,7 +85,7 @@ class Database_Uploader:
                     hardware_id INTEGER REFERENCES hardware_types(hardware_id) NOT NULL,
                     hardware_field_id INTEGER REFERENCES hardware_fields(field_id) NOT NULL,
                     sensor_id INTEGER REFERENCES sensor_types(sensor_id) NOT NULL,
-                    sensor_value NUMERIC NOT NULL,
+                    sensor_value NUMERIC,
                     collection_ts TIMESTAMP NOT NULL,
                     UNIQUE(workload_run_id, hardware_id, hardware_field_id, sensor_id, collection_ts)
                     )''')
