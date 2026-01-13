@@ -7,5 +7,6 @@ def get_machine_uuid():
 
     realuuid, _ = uuid
 
-    if realuuid == str and len(realuuid) == 36:
-        return realuuid
+    if len(realuuid) == 36:
+        
+        return realuuid 
