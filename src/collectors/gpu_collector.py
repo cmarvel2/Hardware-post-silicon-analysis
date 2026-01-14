@@ -15,16 +15,15 @@ def get_gpu_metrics():
 
     gpus = []
 
-    wgpu_clock = {}
-    wgpu_load = {}
-    wgpu_temperature = {}
-    wgpu_power = {}
-    wgpu_fan = {}
-
     for hardware in computer.Hardware:
         if hardware.HardwareType == HardwareType.GpuAmd:
                     
             hardware.Update()
+
+            wgpu_clock = {}
+            wgpu_load = {}
+            wgpu_temperature = {}
+            wgpu_power = {}
 
             for sensor in hardware.Sensors:
                 
@@ -45,13 +44,17 @@ def get_gpu_metrics():
             "gpu_load": wgpu_load,
             "gpu_clock": wgpu_clock,
             "gpu_temperature": wgpu_temperature,
-            "gpu_fan": wgpu_fan,
             "gpu_power": wgpu_power
             }})
 
         elif hardware.HardwareType == HardwareType.GpuNvidia:
 
             hardware.Update()
+
+            wgpu_clock = {}
+            wgpu_load = {}
+            wgpu_temperature = {}
+            wgpu_power = {}
 
             for sensor in hardware.Sensors:
                 if sensor.SensorType == SensorType.Load:

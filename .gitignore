@@ -2,5 +2,8 @@
 .env
 __pycache__
 .venv/
+logs/dbt.log
+frontlogs/dbt.log
+telemetry.log
 
 
