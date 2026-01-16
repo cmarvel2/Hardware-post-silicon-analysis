@@ -1,0 +1,29 @@
+version: 2
+
+sources:
+  - name: hardware_proj
+    schema: hardware_analytics_staging
+    tables:
+      - name: raw_sensor_data
+        columns:
+          - name: sensor_entry_id
+            tests:
+            - unique
+            - not_null
+
+          - name: collection_ts
+            tests:
+            - not_null
+
+      - name: raw_workload_run_data
+        columns:
+          - name: workload_run_id
+            tests:
+            - unique
+            - not_null
+
+          - name: run_date
+            tests:
+            - unique
+            - not_null
+ 

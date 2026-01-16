@@ -5,5 +5,7 @@ __pycache__
 logs/dbt.log
 frontlogs/dbt.log
 telemetry.log
+target/
+frontlogs/
 
 

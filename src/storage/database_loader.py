@@ -25,7 +25,6 @@ class Database_Uploader:
         #self.hostname = platform.node()
         self.uuid = machine_uuid
 
-
     def tables_setup(self):
 
         self.cur.execute('''

@@ -1,0 +1,40 @@
+ersion: 2
+
+sources:
+  - name: hardware_proj
+    schema: hardware_analytics
+    tables: 
+      - name: observed_machines
+        columns:
+          - name: machine_id
+            tests: 
+            - unique
+            - not_null
+
+      - name: hardware_types
+        columns:
+          - name: hardware_id
+            tests:
+            - unique
+            - not_null
+
+      - name: hardware_fields
+        columns:
+          - name: field_id
+            tests:
+            - unique
+            - not_null
+            
+      - name: sensor_types
+        columns:
+          - name: sensor_id
+            tests:
+            - unique
+            - not_null
+
+      - name: workload_types
+        columns:
+          - name: workload_id
+            tests:
+            - unique
+            - not_null
