@@ -1,7 +1,7 @@
 version: 2
 
 sources:
-  - name: hardware_proj
+  - name: hardware_raw
     schema: hardware_raw
     tables:
       - name: raw_sensor_data

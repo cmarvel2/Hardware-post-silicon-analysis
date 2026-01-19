@@ -1,6 +1,6 @@
 with
 source as ( 
-    select * from {{ source('hardware_raw', 'raw_sensor_data') }}
+    select * from {{source('hardware_raw', 'raw_sensor_data') }}
 ),
 
 renamed as (
@@ -12,10 +12,12 @@ renamed as (
         hardware_field_id,
         sensor_id,
         sensor_value as value, 
-        collection_ts as sample_timestamp,
+        collection_ts as sample_timestamp
 
     from source 
     where sensor_value is not null
+    and sensor_value > '-Infinity'::float
+    and sensor_value < 'Infinity'::float
 
 )
 
