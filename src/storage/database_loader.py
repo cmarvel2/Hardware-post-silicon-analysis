@@ -1,5 +1,4 @@
 import psycopg
-import platform
 import urllib.parse
 from dataclasses import dataclass
 
@@ -24,6 +23,8 @@ class Database_Uploader:
 
         #self.hostname = platform.node()
         self.uuid = machine_uuid
+        self.conn.execute("CREATE SCHEMA IF NOT EXISTS hardware_raw")
+        self.conn.execute("SET SEARCH_PATH TO hardware_raw")
 
     def tables_setup(self):
 
@@ -228,8 +229,3 @@ class Database_Uploader:
                     row.sensorvalue,
                     timestamp,)
         )
-
-
-
-
-    
