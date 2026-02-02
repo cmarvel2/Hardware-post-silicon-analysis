@@ -36,7 +36,7 @@ def run_pipeline():
 
     function_logs(dbconnect.insert_into_observed_machines,log)
     function_logs(dbconnect.insert_into_workload_types,log, workload_options)
-    function_logs(dbconnect.insert_into_workload_runs,log, chosen_workload, endtime, date)
+    workload_id = function_logs(dbconnect.insert_into_workload_runs,log, chosen_workload, endtime, date)
 
     dbconnect.conn.commit()
 
@@ -45,22 +45,22 @@ def run_pipeline():
     while time.time() < end:
         
 
-        cpudatadict = function_logs(cpu_collector.get_cpu_metrics,log)
+        cpudatadict = function_logs(cpu_collector.get_cpu_metrics,log, logcur=dbconnect.cur ,logconn=dbconnect.conn ,workload_run_id=workload_id)
 
-        gpudatadict = function_logs(gpu_collector.get_gpu_metrics,log)
+        gpudatadict = function_logs(gpu_collector.get_gpu_metrics,log, logcur=dbconnect.cur ,logconn=dbconnect.conn ,workload_run_id=workload_id)
 
-        memorydatadict = function_logs(memory_collector.get_memory_metrics,log)
+        memorydatadict = function_logs(memory_collector.get_memory_metrics,log, logcur=dbconnect.cur ,logconn=dbconnect.conn ,workload_run_id=workload_id)
         collect_date =datetime.now()
 
-        normalizedhwdata = function_logs(dbconnect.data_normalization,log, cpudatadict, gpudatadict, memorydatadict)
+        normalizedhwdata = function_logs(dbconnect.data_normalization,log, cpudatadict, gpudatadict, memorydatadict,  logcur=dbconnect.cur ,logconn=dbconnect.conn ,workload_run_id=workload_id)
 
-        function_logs(dbconnect.insert_into_types,log, normalizedhwdata)
+        function_logs(dbconnect.insert_into_types,log, normalizedhwdata,  logcur=dbconnect.cur ,logconn=dbconnect.conn ,workload_run_id=workload_id)
 
         if insertcounter < 1:
-            function_logs(dbconnect.insert_components_into_machines, log, cpudatadict, gpudatadict)
+            function_logs(dbconnect.insert_components_into_machines, log, cpudatadict, gpudatadict,  logcur=dbconnect.cur ,logconn=dbconnect.conn ,workload_run_id=workload_id)
             insertcounter += 1
 
-        function_logs(dbconnect.insert_into_sensor_data,log, normalizedhwdata, collect_date)
+        function_logs(dbconnect.insert_into_sensor_data,log, normalizedhwdata, collect_date,  logcur=dbconnect.cur ,logconn=dbconnect.conn ,workload_run_id=workload_id)
 
         if count >= 10:
             count = 0

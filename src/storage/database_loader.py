@@ -201,6 +201,8 @@ class Database_Uploader:
                  run_date,)
                 )
         self.workload_run_id = self.cur.fetchone()[0]
+
+        return self.workload_run_id
         
     def insert_into_sensor_data(self, normalized_hw_data, timestamp):
         self.cur.execute('SELECT machine_id FROM observed_machines WHERE machine_uuid = %s', (self.uuid,))
