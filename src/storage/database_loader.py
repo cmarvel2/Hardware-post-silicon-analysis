@@ -53,11 +53,28 @@ class Database_Uploader:
                     )''')
         
         self.cur.execute('''
-            CREATE TABLE IF NOT EXISTS workload_types (
-                    workload_id SERIAL PRIMARY KEY, 
-                    workload_name TEXT UNIQUE NOT NULL
-                    )  
-                    ''')
+            CREATE TABLE IF NOT EXISTS test_types (
+                    test_id SERIAL PRIMARY KEY, 
+                    test_name TEXT UNIQUE NOT NULL
+                    )''')
+        
+        self.cur.execute('''
+            CREATE TABLE IF NOT EXISTS instruction_version_types (
+                    instver_id SERIAL PRIMARY KEY, 
+                    instver_name TEXT UNIQUE NOT NULL
+                    )''')
+        
+        self.cur.execute('''
+            CREATE TABLE IF NOT EXISTS load_types (
+                    load_id SERIAL PRIMARY KEY, 
+                    load_name TEXT UNIQUE NOT NULL
+                    )''')
+        
+        self.cur.execute('''
+            CREATE TABLE IF NOT EXISTS data_sets (
+                    dataset_id SERIAL PRIMARY KEY, 
+                    dataset_name TEXT UNIQUE NOT NULL
+                    )''')
         
         self.cur.execute('''
             CREATE TABLE IF NOT EXISTS machine_components (
@@ -65,29 +82,32 @@ class Database_Uploader:
                     machine_id INTEGER REFERENCES observed_machines(machine_id) NOT NULL,
                     hardware_id INTEGER REFERENCES hardware_types(hardware_id) NOT NULL,
                     UNIQUE(machine_id, hardware_id)
-                         )''')
+                     )''')
 
         self.cur.execute('''
-            CREATE TABLE IF NOT EXISTS raw_workload_run_data (
-                    workload_run_id SERIAL PRIMARY KEY,
+            CREATE TABLE IF NOT EXISTS raw_test_run_data (
+                    test_run_id SERIAL PRIMARY KEY,
                     machine_id INTEGER REFERENCES observed_machines(machine_id) NOT NULL,
-                    workload_id INTEGER REFERENCES workload_types(workload_id) NOT NULL,
+                    test_id INTEGER REFERENCES test_types(test_id) NOT NULL,
+                    instver_id INTEGER REFERENCES instruction_version_types(instver_id) NOT NULL,
+                    load_id INTEGER REFERENCES load_types(load_id) NOT NULL,
+                    dataset_id INTEGER REFERENCES data_sets(dataset_id) NOT NULL,
                     runtime_mins INTEGER NOT NULL,
                     run_date TIMESTAMP NOT NULL,
-                    UNIQUE (machine_id, workload_id, runtime_mins, run_date)
+                    UNIQUE (machine_id, test_id, runtime_mins, run_date)
                     )''')
 
         self.cur.execute('''
             CREATE TABLE IF NOT EXISTS raw_sensor_data (
                     sensor_entry_id SERIAL PRIMARY KEY,
                     machine_id INTEGER REFERENCES observed_machines(machine_id) NOT NULL,
-                    workload_run_id INTEGER REFERENCES raw_workload_run_data(workload_run_id) NOT NULL,
+                    test_run_id INTEGER REFERENCES raw_test_run_data(test_run_id) NOT NULL,
                     hardware_id INTEGER REFERENCES hardware_types(hardware_id) NOT NULL,
                     hardware_field_id INTEGER REFERENCES hardware_fields(field_id) NOT NULL,
                     sensor_id INTEGER REFERENCES sensor_types(sensor_id) NOT NULL,
                     sensor_value NUMERIC,
                     collection_ts TIMESTAMP NOT NULL,
-                    UNIQUE(workload_run_id, hardware_id, hardware_field_id, sensor_id, collection_ts)
+                    UNIQUE(test_run_id, hardware_id, hardware_field_id, sensor_id, collection_ts)
                     )''')
         
         self.conn.commit()
@@ -174,35 +194,74 @@ class Database_Uploader:
                     (row.sensorname,)
                     )
                         
-    def insert_into_workload_types(self, testlist):
+    def insert_into_test_types(self, testlist):
         for test_type in testlist:
             self.cur.execute(
-                '''INSERT INTO workload_types (workload_name)
+                '''INSERT INTO test_types (test_name)
                 VALUES(%s)
                 ON CONFLICT DO NOTHING''',
                 (test_type,)
                 )
+            
+    def insert_into_instorver_types(self, instorverlist):
+        for instorver_type in instorverlist:
+            self.cur.execute(
+                '''INSERT INTO instruction_version_types (instver_name)
+                VALUES(%s)
+                ON CONFLICT DO NOTHING''',
+                (instorver_type,)
+                )
+            
+    def insert_into_load_types(self, loadlist):
+        for load_type in loadlist:
+            self.cur.execute(
+                '''INSERT INTO load_types (load_name)
+                VALUES(%s)
+                ON CONFLICT DO NOTHING''',
+                (load_type,)
+                )
+            
+    def insert_into_dataset_types(self, datasetlist):
+        for data_set in datasetlist:
+            self.cur.execute(
+                '''INSERT INTO data_sets (dataset_name)
+                VALUES(%s)
+                ON CONFLICT DO NOTHING''',
+                (data_set,)
+                )
 
-    def insert_into_workload_runs(self, workloadstring, runtime_mins, run_date):
+    def insert_into_test_runs(self, teststring, instverstring, loadstring, datasetstring, runtime_mins, run_date):
         self.cur.execute('SELECT machine_id FROM observed_machines WHERE machine_uuid = %s', (self.uuid,))
         machine_id = self.cur.fetchone()[0]
 
-        self.cur.execute('SELECT workload_id FROM workload_types WHERE workload_name = %s', (workloadstring,))
-        workload_id = self.cur.fetchone()[0]
+        self.cur.execute('SELECT test_id FROM test_types WHERE test_name = %s', (teststring,))
+        test_id = self.cur.fetchone()[0]
+
+        self.cur.execute('SELECT instver_id FROM instruction_version_types WHERE instver_name = %s', (instverstring,))
+        instver_id = self.cur.fetchone()[0]
+
+        self.cur.execute('SELECT load_id FROM load_types WHERE load_name = %s', (loadstring,))
+        load_id = self.cur.fetchone()[0]
+
+        self.cur.execute('SELECT dataset_id FROM data_sets WHERE dataset_name = %s', (datasetstring,))
+        dataset_id = self.cur.fetchone()[0]
 
         self.cur.execute(
-            '''INSERT INTO raw_workload_run_data (machine_id, workload_id, runtime_mins, run_date)
+            '''INSERT INTO raw_test_run_data (machine_id, test_id, instver_id, load_id, dataset_id, runtime_mins, run_date)
                 VALUES(%s, %s, %s, %s)
                 ON CONFLICT DO NOTHING
-                RETURNING workload_run_id''',
+                RETURNING test_run_id''',
                 (machine_id,
-                 workload_id,
+                 test_id,
+                 instver_id,
+                 load_id,
+                 dataset_id,
                  runtime_mins,
                  run_date,)
                 )
-        self.workload_run_id = self.cur.fetchone()[0]
+        self.test_run_id = self.cur.fetchone()[0]
 
-        return self.workload_run_id
+        return self.test_run_id
         
     def insert_into_sensor_data(self, normalized_hw_data, timestamp):
         self.cur.execute('SELECT machine_id FROM observed_machines WHERE machine_uuid = %s', (self.uuid,))
@@ -220,11 +279,11 @@ class Database_Uploader:
 
         
             self.cur.execute(
-                '''INSERT INTO raw_sensor_data (machine_id, workload_run_id, hardware_id, hardware_field_id, sensor_id, sensor_value, collection_ts)
+                '''INSERT INTO raw_sensor_data (machine_id, test_run_id, hardware_id, hardware_field_id, sensor_id, sensor_value, collection_ts)
                     VALUES(%s, %s, %s, %s, %s, %s, %s)
                     ON CONFLICT DO NOTHING''',
                     (machine_id,
-                    self.workload_run_id,
+                    self.test_run_id,
                     hardware_id,
                     field_id,
                     sensortype_id,
