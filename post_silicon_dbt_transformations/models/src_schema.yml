@@ -55,10 +55,37 @@ sources:
             - unique
             - not_null
 
-      - name: workload_types
+      - name: test_types
         columns:
-          - name: workload_id
+          - name: test_id
             tests:
             - unique
             - not_null
- 
+
+      - name: data_sets
+        columns:
+          - name: dataset_id
+            tests:
+            - unique
+            - not_null
+
+      - name: load_types
+        columns:
+          - name: load_id
+            tests:
+            - unique
+            - not_null
+
+      - name: mode_types
+        columns:
+          - name: mode_id
+            tests:
+            - unique
+            - not_null
+
+      - name: instruction_version_types
+        columns:
+          - name: instver_id
+            tests:
+            - unique
+            - not_null

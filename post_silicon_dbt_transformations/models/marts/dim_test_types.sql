@@ -1,1 +1,1 @@
-SELECT * FROM {{source('hardware_raw', 'workload_types')}}
+SELECT * FROM {{source('hardware_raw', 'test_types')}}

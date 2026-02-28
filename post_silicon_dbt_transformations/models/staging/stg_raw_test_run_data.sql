@@ -11,7 +11,8 @@ renamed as (
         test_id,
         instver_id,
         load_id,
-        dataset_id
+        mode_id,
+        dataset_id,
         runtime_mins as runtime_minutes,
         run_date as started_at
 

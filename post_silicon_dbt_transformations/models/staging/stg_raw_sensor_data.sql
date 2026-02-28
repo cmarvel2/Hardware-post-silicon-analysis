@@ -7,7 +7,7 @@ renamed as (
 
     select
         machine_id,
-        workload_run_id,
+        test_run_id,
         hardware_id,
         hardware_field_id,
         sensor_id,
