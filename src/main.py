@@ -16,12 +16,12 @@ def run_pipeline():
     dbpassword = os.getenv("DBPASSWORD")
     sslmode = os.getenv("SSLMODE")
 
-    endtime = 120
+    endtime = 75
 
     test_options = ['IDLE','OCCT_CPU_RAM', 'OCCT_CPU', 'OCCT_LINPACK', 'OCCT_MEMORY',
                 'OCCT_3D_ADAPTIVE', 'OCCT_VRAM', 'OCCT_POWER']
 
-    instructionset_or_versions = ['SEE', 'AVX', 'AVX2', 'AVX512', 'Auto', '2019', '2021', 'Unavailable']
+    instructionset_or_versions = ['SSE', 'AVX', 'AVX2', 'AVX512', 'Auto', '2019', '2021', 'Unavailable']
 
     load_type_options = ['Light', 'Heavy', 'Extreme', 'Variable', 'Steady', 'Unavailable']
 
@@ -59,7 +59,7 @@ def run_pipeline():
                                 workload_test['InstructionOrversion'], 
                                 workload_test['Load'], 
                                 workload_test['Mode'],
-                                workload_test['Dataset'],
+                                workload_test['DataSet'],
                                 endtime, date)
 
     dbconnect.conn.commit()
