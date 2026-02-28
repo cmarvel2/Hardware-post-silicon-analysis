@@ -71,6 +71,12 @@ class Database_Uploader:
                     )''')
         
         self.cur.execute('''
+            CREATE TABLE IF NOT EXISTS mode_types (
+                    mode_id SERIAL PRIMARY KEY, 
+                    mode_name TEXT UNIQUE NOT NULL
+                    )''')
+        
+        self.cur.execute('''
             CREATE TABLE IF NOT EXISTS data_sets (
                     dataset_id SERIAL PRIMARY KEY, 
                     dataset_name TEXT UNIQUE NOT NULL
@@ -91,6 +97,7 @@ class Database_Uploader:
                     test_id INTEGER REFERENCES test_types(test_id) NOT NULL,
                     instver_id INTEGER REFERENCES instruction_version_types(instver_id) NOT NULL,
                     load_id INTEGER REFERENCES load_types(load_id) NOT NULL,
+                    mode_id INTEGER REFERENCES mode_types(mode_id) NOT NULL,
                     dataset_id INTEGER REFERENCES data_sets(dataset_id) NOT NULL,
                     runtime_mins INTEGER NOT NULL,
                     run_date TIMESTAMP NOT NULL,
@@ -221,6 +228,15 @@ class Database_Uploader:
                 (load_type,)
                 )
             
+    def insert_into_mode_types(self, modelist):
+        for mode_type in modelist:
+            self.cur.execute(
+                '''INSERT INTO mode_types (mode_name)
+                VALUES(%s)
+                ON CONFLICT DO NOTHING''',
+                (mode_type,)
+                )
+            
     def insert_into_dataset_types(self, datasetlist):
         for data_set in datasetlist:
             self.cur.execute(
@@ -230,7 +246,7 @@ class Database_Uploader:
                 (data_set,)
                 )
 
-    def insert_into_test_runs(self, teststring, instverstring, loadstring, datasetstring, runtime_mins, run_date):
+    def insert_into_test_runs(self, teststring, instverstring, loadstring, modestring, datasetstring, runtime_mins, run_date):
         self.cur.execute('SELECT machine_id FROM observed_machines WHERE machine_uuid = %s', (self.uuid,))
         machine_id = self.cur.fetchone()[0]
 
@@ -243,18 +259,22 @@ class Database_Uploader:
         self.cur.execute('SELECT load_id FROM load_types WHERE load_name = %s', (loadstring,))
         load_id = self.cur.fetchone()[0]
 
+        self.cur.execute('SELECT mode_id FROM mode_types WHERE mode_name = %s', (modestring,))
+        mode_id = self.cur.fetchone()[0]
+
         self.cur.execute('SELECT dataset_id FROM data_sets WHERE dataset_name = %s', (datasetstring,))
         dataset_id = self.cur.fetchone()[0]
 
         self.cur.execute(
-            '''INSERT INTO raw_test_run_data (machine_id, test_id, instver_id, load_id, dataset_id, runtime_mins, run_date)
-                VALUES(%s, %s, %s, %s)
+            '''INSERT INTO raw_test_run_data (machine_id, test_id, instver_id, load_id, mode_id, dataset_id, runtime_mins, run_date)
+                VALUES(%s, %s, %s, %s, %s, %s, %s, %s)
                 ON CONFLICT DO NOTHING
                 RETURNING test_run_id''',
                 (machine_id,
                  test_id,
                  instver_id,
                  load_id,
+                 mode_id,
                  dataset_id,
                  runtime_mins,
                  run_date,)

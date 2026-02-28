@@ -21,19 +21,21 @@ def run_pipeline():
     test_options = ['IDLE','OCCT_CPU_RAM', 'OCCT_CPU', 'OCCT_LINPACK', 'OCCT_MEMORY',
                 'OCCT_3D_ADAPTIVE', 'OCCT_VRAM', 'OCCT_POWER']
 
-    instructionset_or_versions = ['SEE', 'AVX', 'AVX2', 'AVX512', 'Auto', '2019', '2021', 'N/A']
+    instructionset_or_versions = ['SEE', 'AVX', 'AVX2', 'AVX512', 'Auto', '2019', '2021', 'Unavailable']
 
-    load_type_options = ['Light', 'Heavy', 'Extreme', 'Variable', 'Steady', 'N/A']
+    load_type_options = ['Light', 'Heavy', 'Extreme', 'Variable', 'Steady', 'Unavailable']
 
-    data_sets = ['Medium', 'Large', 'N/A']
+    mode_type_options = ['Normal', 'Extreme', 'Unavailable']
+
+    data_sets = ['Medium', 'Large', 'Unavailable']
 
 
 
-    workload_test = {'Test': 'IDLE', 
-                     'InstructionOrVersion' : 'AVX', 
-                     'Load' : 'Variable',
-                     'DataSet' : 'Large'
-
+    workload_test = {'Test': 'OCCT_CPU', 
+                     'InstructionOrVersion' : 'SSE', 
+                     'Load' : 'Steady',
+                     'Mode' : 'Normal',
+                     'DataSet' : 'Unavailable'
     }
 
     log = setup_logs()
@@ -51,11 +53,13 @@ def run_pipeline():
     function_logs(dbconnect.insert_into_test_types,log, test_options)
     function_logs(dbconnect.insert_into_instorver_types,log, instructionset_or_versions)
     function_logs(dbconnect.insert_into_load_types,log, load_type_options)
+    function_logs(dbconnect.insert_into_mode_types,log, mode_type_options)
     function_logs(dbconnect.insert_into_dataset_types,log, data_sets)
     workload_id = function_logs(dbconnect.insert_into_test_runs,log,workload_test['Test'] , 
-                                workload_test['Instruction/version'], 
+                                workload_test['InstructionOrversion'], 
                                 workload_test['Load'], 
-                                workload_test['Data set'],
+                                workload_test['Mode'],
+                                workload_test['Dataset'],
                                 endtime, date)
 
     dbconnect.conn.commit()
