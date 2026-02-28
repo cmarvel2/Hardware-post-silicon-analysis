@@ -1,0 +1,1 @@
+SELECT * FROM {{source('hardware_raw', 'instruction_version_types')}}

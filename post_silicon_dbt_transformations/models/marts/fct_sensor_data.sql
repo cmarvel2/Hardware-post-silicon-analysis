@@ -3,16 +3,19 @@ with stg_raw_sensor_data as (
     from {{ ref("stg_raw_sensor_data") }}
 ),
 
-stg_raw_workload_run as (
+stg_raw_test_run as (
     select *
-    from {{ ref("stg_raw_workload_run_data") }}
+    from {{ ref("stg_raw_test_run_data") }}
 
 )
 
 select
     srsd.machine_id,
-    srsd.workload_run_id,
-    srwr.workload_id,
+    srsd.test_run_id,
+    srtr.test_id,
+    srtr.instver_id
+    srtr.load_id
+    srtr.dataset_id
     srsd.hardware_id,
     srsd.hardware_field_id,
     srsd.sensor_id,
@@ -21,5 +24,5 @@ select
     srwr.runtime_minutes,
     srwr.started_at
 from stg_raw_sensor_data srsd
-left join stg_raw_workload_run srwr
-    on srsd.workload_run_id = srwr.workload_run_id
+left join stg_raw_test_run srtr
+    on srsd.test_run_id = srtr.test_run_id

@@ -21,7 +21,7 @@ def run_pipeline():
     test_options = ['IDLE','OCCT_CPU_RAM', 'OCCT_CPU', 'OCCT_LINPACK', 'OCCT_MEMORY',
                 'OCCT_3D_ADAPTIVE', 'OCCT_VRAM', 'OCCT_POWER']
 
-    instructionset_or_versions = ['SEE', 'AVX', 'AVX2', 'AVX512', '2019', '2021', 'N/A']
+    instructionset_or_versions = ['SEE', 'AVX', 'AVX2', 'AVX512', 'Auto', '2019', '2021', 'N/A']
 
     load_type_options = ['Light', 'Heavy', 'Extreme', 'Variable', 'Steady', 'N/A']
 

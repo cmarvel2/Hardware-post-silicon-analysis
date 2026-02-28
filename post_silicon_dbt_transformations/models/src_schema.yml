@@ -15,9 +15,9 @@ sources:
             tests:
             - not_null
 
-      - name: raw_workload_run_data
+      - name: raw_test_run_data
         columns:
-          - name: workload_run_id
+          - name: test_run_id
             tests:
             - unique
             - not_null
