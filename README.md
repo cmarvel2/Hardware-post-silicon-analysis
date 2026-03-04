@@ -5,10 +5,10 @@
 Characterize how quickly boost collapses under sustained CPU stress, at what temperature the sustained frequency ceiling stabilizes, 
 and whether that ceiling differs across SSE vs. AVX vs. AVX2 instruction sets."
 
-### Data Architecture
+# Data Architecture
 - High level diagram
-  <img width="3288" height="1048" alt="image" src="https://github.com/user-attachments/assets/e6b94bf3-b8fa-4454-bef1-830eface12c5" />
-  - The first PostgreSQL block represents where the raw data is loaded and the second is where the dbt transformed data is loaded.
+<img width="1502" height="601" alt="Data pathway" src="https://github.com/user-attachments/assets/eec5f26f-df9c-473b-a139-6ad50d600027" />
+
 
 # Prerequisites / How to Run The Project
 - Any benchmarking tool (This was made with OCCT in mind)
