@@ -4,7 +4,9 @@
 "The CPU cores team needs to understand how the HX 370's cores behave under sustained workloads specifically, how fast the clock speed drops from its advertised peak and at what temperature it stabilizes. AVX and AVX2 instruction sets are expected to push the cores harder than SSE by design, but the team needs to quantify by how much: whether the frequency penalty each instruction set carries is proportional to the additional thermal and power demand it creates, and whether any instruction set is hitting the chip's limits harder than the architecture intends. This needs to be characterized and visualized so the team has a documented record of the chip's sustained performance envelope and the cost in frequency and temperature of moving up the instruction set stack."
 
 ### Engineering Questions
-- Over SSE, AVX, and AVX2 tests 
+- Over SSE, AVX, and AVX2 tests when does the clock speed drop from the advertised speed (if it reaches it) and at what temperature does the clock speed stabilize?
+- What is the average Clock speed, tctl/tdie and package power for the CPU under each instruction set and are the porportional to each other?
+- What is the Max Clock speed and tctl/tdie for each test and how closely do they approach the Max GHz and Max Operating Temperature?
 
 
 ## Data Architecture
