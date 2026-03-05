@@ -1,9 +1,11 @@
-# Hardware Post Silicon Analysis
+# CPU Cores Post Silicon Analysis
 
 ## Engineering Problem
-"The HX 370 is rated for a 5.1 GHz boost clock, but sustained workloads force the chip to trade frequency for thermal headroom. 
-Characterize how quickly boost collapses under sustained CPU stress, at what temperature the sustained frequency ceiling stabilizes, 
-and whether that ceiling differs across SSE vs. AVX vs. AVX2 instruction sets."
+"The CPU cores team needs to understand how the HX 370's cores behave under sustained workloads — specifically, 
+how fast the clock speed drops from its advertised peak, what temperature causes it to stop dropping and hold steady, 
+and whether running different types of math-heavy instructions (SSE, AVX, AVX2) changes that behavior. 
+We need this characterized and visualized so the team can set realistic performance expectations and 
+identify whether any instruction set is pushing the cores harder than the others."
 
 ### Engineering Questions
 
