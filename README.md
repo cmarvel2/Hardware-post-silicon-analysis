@@ -1,13 +1,10 @@
 # CPU Cores Post Silicon Analysis
 
 ## Engineering Problem
-"The CPU cores team needs to understand how the HX 370's cores behave under sustained workloads — specifically, 
-how fast the clock speed drops from its advertised peak, what temperature causes it to stop dropping and hold steady, 
-and whether running different types of math-heavy instructions (SSE, AVX, AVX2) changes that behavior. 
-We need this characterized and visualized so the team can set realistic performance expectations and 
-identify whether any instruction set is pushing the cores harder than the others."
+"The CPU cores team needs to understand how the HX 370's cores behave under sustained workloads specifically, how fast the clock speed drops from its advertised peak and at what temperature it stabilizes. AVX and AVX2 instruction sets are expected to push the cores harder than SSE by design, but the team needs to quantify by how much: whether the frequency penalty each instruction set carries is proportional to the additional thermal and power demand it creates, and whether any instruction set is hitting the chip's limits harder than the architecture intends. This needs to be characterized and visualized so the team has a documented record of the chip's sustained performance envelope and the cost in frequency and temperature of moving up the instruction set stack."
 
 ### Engineering Questions
+- Over SSE, AVX, and AVX2 tests 
 
 
 ## Data Architecture
