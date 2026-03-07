@@ -16,7 +16,7 @@ def run_pipeline():
     dbpassword = os.getenv("DBPASSWORD")
     sslmode = os.getenv("SSLMODE")
 
-    endtime = 75
+    endtime = 55
 
     test_options = ['IDLE','OCCT_CPU_RAM', 'OCCT_CPU', 'OCCT_LINPACK', 'OCCT_MEMORY',
                 'OCCT_3D_ADAPTIVE', 'OCCT_VRAM', 'OCCT_POWER']
