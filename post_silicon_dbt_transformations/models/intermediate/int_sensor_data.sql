@@ -1,12 +1,9 @@
 with stg_raw_sensor_data as (
-    select *
-    from {{ ref("stg_raw_sensor_data") }}
+    select * from {{ ref("stg_raw_sensor_data") }}
 ),
 
 stg_raw_test_run as (
-    select *
-    from {{ ref("stg_raw_test_run_data") }}
-
+    select * from {{ ref("stg_raw_test_run_data") }}
 )
 
 select
@@ -20,10 +17,9 @@ select
     srsd.hardware_id,
     srsd.hardware_field_id,
     srsd.sensor_id,
-    srsd.value,
-    srsd.sample_timestamp,
+    srsd.sensor_value,
     srtr.runtime_minutes,
-    srtr.started_at
+    {{dbt.datediff('srtr.started_at', 'srsd.sample_timestamp', 'second')}} as seconds_from_start
 from stg_raw_sensor_data srsd
 left join stg_raw_test_run srtr
     on srsd.test_run_id = srtr.test_run_id

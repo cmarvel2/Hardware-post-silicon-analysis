@@ -11,7 +11,7 @@ renamed as (
         hardware_id,
         hardware_field_id,
         sensor_id,
-        sensor_value as value, 
+        sensor_value, 
         collection_ts as sample_timestamp
 
     from source 

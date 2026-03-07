@@ -77,6 +77,6 @@ def get_gpu_metrics():
             }})
 
     computer.Close()
-
+    
     return gpus
-                
+

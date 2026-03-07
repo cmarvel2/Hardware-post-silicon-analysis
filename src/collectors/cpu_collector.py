@@ -55,6 +55,4 @@ def get_cpu_metrics():
     }}
         
 
-
-
     

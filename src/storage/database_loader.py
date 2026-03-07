@@ -21,7 +21,6 @@ class Database_Uploader:
         self.conn = psycopg.connect(self.db_uri)
         self.cur = self.conn.cursor()
 
-        #self.hostname = platform.node()
         self.uuid = machine_uuid
         self.conn.execute("CREATE SCHEMA IF NOT EXISTS hardware_raw")
         self.conn.execute("SET SEARCH_PATH TO hardware_raw") 
