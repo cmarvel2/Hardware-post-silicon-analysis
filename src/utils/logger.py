@@ -22,16 +22,16 @@ def setup_logs(log_file='telemetry.log'):
 def function_logs(func, logger, *args, workload_run_id=None, logcur=None, logconn=None, retries=3):
     for retry in range(retries):
         try:
-            telemetrydata = func(*args)
+            testdata = func(*args)
             logger.info(f"{func.__name__} successfully executed")
-            return telemetrydata
+            return testdata
         except Exception as e:
             if retry < retries - 1:
                 logger.warning(f"At attempt {retry} out of {retries - 1}")
             else:
-                logger.error(f"{func.__name__} unsuccessfully executed workload deleted", exc_info=True)
-                logcur.execute("DELETE FROM raw_sensor_data WHERE workload_run_id = %s", (workload_run_id,))
-                logcur.execute("DELETE FROM raw_workload_run_data WHERE workload_run_id = %s", (workload_run_id,))
+                logger.error(f"{func.__name__} unsuccessfully executed test deleted", exc_info=True)
+                logcur.execute("DELETE FROM raw_sensor_data WHERE test_run_id = %s", (workload_run_id,))
+                logcur.execute("DELETE FROM raw_test_run_data WHERE test_run_id = %s", (workload_run_id,))
                 logconn.commit()
                 return None 
     
