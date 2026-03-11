@@ -16,4 +16,4 @@ select
     min(sensor_value) as min_sensor_value
 from test_data
 where thermal_rampup = False
-group by 1,2,3,4,5,6,7,8,
+group by 1,2,3,4,5,6,7,8
