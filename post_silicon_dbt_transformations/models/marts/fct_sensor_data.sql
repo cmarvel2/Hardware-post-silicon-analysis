@@ -27,5 +27,5 @@ select
         else False
     end as thermal_rampup
 from stg_raw_sensor_data srsd
-left join stg_raw_test_run srtr
+inner join stg_raw_test_run srtr
     on srsd.test_run_id = srtr.test_run_id
