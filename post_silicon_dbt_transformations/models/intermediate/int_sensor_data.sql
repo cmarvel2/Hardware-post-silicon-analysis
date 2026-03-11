@@ -6,7 +6,7 @@ stg_raw_test_run as (
     select * from {{ ref("stg_raw_test_run_data") }}
 )
 
-{{dbt.datediff('srtr.started_at', 'srsd.sample_timestamp', 'second')}} as seconds_from_start
+
 
 select
     srsd.machine_id,
@@ -21,11 +21,11 @@ select
     srsd.sensor_id,
     srsd.sensor_value,
     srtr.runtime_minutes,
-    seconds_from_start,
+    {{dbt.datediff('srtr.started_at', 'srsd.sample_timestamp', 'second')}} as seconds_from_start,
     case
-        when seconds_from_start <= 600 then 'warmup_phase'
-        else 'peak_phase'
-    end as thermal_phase
+        when {{dbt.datediff('srtr.started_at', 'srsd.sample_timestamp', 'second')}} <= 600 then True
+        else False
+    end as thermal_rampup
 from stg_raw_sensor_data srsd
 left join stg_raw_test_run srtr
     on srsd.test_run_id = srtr.test_run_id
