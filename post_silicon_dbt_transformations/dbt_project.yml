@@ -33,9 +33,6 @@ models:
   post_silicon_dbt_transformations:
     marts:
       +materialized: table
-
-    intermediate:
-      +materialized: table
     
     staging:
       +materialized: view

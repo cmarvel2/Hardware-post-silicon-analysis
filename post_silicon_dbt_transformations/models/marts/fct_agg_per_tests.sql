@@ -1,5 +1,5 @@
 with test_data as (
-    select * from {{ref('int_sensor_data')}}
+    select * from {{ref('fct_sensor_data')}}
 )
 
 select
@@ -16,4 +16,4 @@ select
     min(sensor_value) as min_sensor_value
 from test_data
 where thermal_rampup = False
-group by 1,2,3,4,5,6,7,8,9
+group by 1,2,3,4,5,6,7,8,
