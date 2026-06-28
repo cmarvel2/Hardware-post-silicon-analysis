@@ -42,7 +42,7 @@ select distinct
                 'cpu_temperature'
             ) 
             and (
-                st.sensor_name like 'Core #4%'
+                st.sensor_name like 'Core #5%'
                 or st.sensor_name like 'Core #6%'
                 or st.sensor_name like 'Core #7%'
                 or st.sensor_name like 'Core #8%'
