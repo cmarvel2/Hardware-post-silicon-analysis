@@ -28,10 +28,10 @@ select distinct
                 'cpu_temperature'
             ) 
             and ( 
-                st.sensor_name like 'Core #0%'
-                or st.sensor_name like 'Core #1%'
+                st.sensor_name like 'Core #1%'
                 or st.sensor_name like 'Core #2%'
                 or st.sensor_name like 'Core #3%'
+                or st.sensor_name like 'Core #4%'
             )
         then 'Zen 5'
 
@@ -43,13 +43,13 @@ select distinct
             ) 
             and (
                 st.sensor_name like 'Core #4%'
-                or st.sensor_name like 'Core #5%'
                 or st.sensor_name like 'Core #6%'
                 or st.sensor_name like 'Core #7%'
                 or st.sensor_name like 'Core #8%'
                 or st.sensor_name like 'Core #9%'
                 or st.sensor_name like 'Core #10%'
                 or st.sensor_name like 'Core #11%'
+                or st.sensor_name like 'Core #12%'
             )
         then 'Zen 5c'
 
