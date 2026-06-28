@@ -14,6 +14,7 @@ stg_raw_sensor_data as (
     select * from {{ ref('stg_raw_sensor_data') }}
 )
 
+select * from (
 select distinct
     st.sensor_id,
     st.sensor_name,
@@ -61,4 +62,6 @@ inner join hardware_types ht
     on srsd.hardware_id = ht.hardware_id
 inner join hardware_fields hf
     on srsd.hardware_field_id = hf.field_id
+)
+where core_type is not null
 
