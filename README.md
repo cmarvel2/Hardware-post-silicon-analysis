@@ -28,7 +28,7 @@ Steps:
 - from `cd post_silicon_dbt_transformations` folder run `dbt build` to create new dbt models used by Power BI within your PostgreSQL database
  
 ## Analyses and Dashboard
-- Data collection still in progress
+- Writing Report
   
 ## What I've learned
 
