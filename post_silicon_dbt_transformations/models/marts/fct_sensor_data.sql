@@ -1,9 +1,9 @@
 with stg_raw_sensor_data as (
-    select * from {{ ref("stg_raw_sensor_data") }}
+    select * from {{ ref('stg_raw_sensor_data') }}
 ),
 
 stg_raw_test_run as (
-    select * from {{ ref("stg_raw_test_run_data") }}
+    select * from {{ ref('stg_raw_test_run_data') }}
 )
 
 

@@ -15,6 +15,41 @@ sources:
             tests:
             - not_null
 
+          - name: machine_id
+            tests:
+            - not_null
+            - relationships:
+                to: source('hardware_raw', 'observed_machines')
+                field: machine_id
+
+          - name: test_run_id
+            tests:
+            - not_null
+            - relationships:
+                to: source('hardware_raw', 'raw_test_run_data')
+                field: test_run_id
+
+          - name: hardware_id
+            tests:
+            - not_null
+            - relationships:
+                to: source('hardware_raw', 'hardware_types')
+                field: hardware_id
+
+          - name: hardware_field_id
+            tests:
+            - not_null
+            - relationships:
+                to: source('hardware_raw', 'hardware_fields')
+                field: field_id   
+
+          - name: sensor_id
+            tests:
+            - not_null
+            - relationships:
+                to: source('hardware_raw', 'sensor_types')
+                field: sensor_id      
+
       - name: raw_test_run_data
         columns:
           - name: test_run_id
@@ -22,10 +57,52 @@ sources:
             - unique
             - not_null
 
+          - name: machine_id
+            tests:
+            - not_null
+            - relationships:
+                to: source('hardware_raw', 'observed_machines')
+                field: machine_id 
+
+          - name: test_id
+            tests:
+            - not_null
+            - relationships:
+                to: source('hardware_raw', 'test_types')
+                field: test_id 
+
+          - name: instver_id
+            tests:
+            - not_null
+            - relationships:
+                to: source('hardware_raw', 'instruction_version_types')
+                field: instver_id
+
+          - name: load_id
+            tests:
+            - not_null
+            - relationships:
+                to: source('hardware_raw', 'load_types')
+                field: load_id 
+
+          - name: mode_id
+            tests:
+            - not_null
+            - relationships:
+                to: source('hardware_raw', 'mode_types')
+                field: mode_id 
+
+          - name: dataset_id
+            tests:
+            - not_null
+            - relationships:
+                to: source('hardware_raw', 'data_sets')
+                field: dataset_id 
+
           - name: run_date
             tests:
             - unique
-            - not_null
+            - not_null  
 
       - name: observed_machines
         columns:
