@@ -9,6 +9,7 @@ stg_raw_test_run as (
 
 
 select
+    srsd.sensor_entry_id,
     srsd.machine_id,
     srsd.test_run_id,
     srtr.test_id,

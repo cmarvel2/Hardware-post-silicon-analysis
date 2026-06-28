@@ -1,1 +1,202 @@
 version: 2
+
+models:
+
+  - name: fct_sensor_data
+    columns:
+      - name: sensor_entry_id
+        tests:
+          - unique
+          - not_null
+
+      - name: sensor_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_sensor_types')
+              field: sensor_id
+
+      - name: hardware_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_hardware_types')
+              field: hardware_id
+
+      - name: hardware_field_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_hardware_fields')
+              field: field_id
+
+      - name: machine_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_observed_machine')
+              field: machine_id
+
+      - name: test_run_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_raw_test_run_data')
+              field: test_run_id
+
+
+  - name: fct_agg_per_tests
+    columns:
+      - name: test_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_test_types')
+              field: test_id
+
+      - name: hardware_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_hardware_types')
+              field: hardware_id
+
+      - name: hardware_field_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_hardware_fields')
+              field: field_id
+
+      - name: instver_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_instruction_version_types')
+              field: instver_id
+
+      - name: load_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_load_types')
+              field: load_id
+
+      - name: mode_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_mode_types')
+              field: mode_id
+
+      - name: dataset_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_data_sets')
+              field: dataset_id
+
+      - name: sensor_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_sensor_types')
+              field: sensor_id
+
+
+  - name: dim_core_type
+    columns:
+      - name: sensor_id
+        tests:
+          - not_null
+      - name: hardware_field
+        tests:
+          - not_null
+
+
+  - name: dim_sensor_types
+    columns:
+      - name: sensor_id
+        tests:
+          - unique
+          - not_null
+
+
+  - name: dim_hardware_types
+    columns:
+      - name: hardware_id
+        tests:
+          - unique
+          - not_null
+
+
+  - name: dim_hardware_fields
+    columns:
+      - name: field_id
+        tests:
+          - unique
+          - not_null
+
+
+  - name: dim_observed_machine
+    columns:
+      - name: machine_id
+        tests:
+          - unique
+          - not_null
+
+
+  - name: dim_load_types
+    columns:
+      - name: load_id
+        tests:
+          - unique
+          - not_null
+
+
+  - name: dim_mode_types
+    columns:
+      - name: mode_id
+        tests:
+          - unique
+          - not_null
+
+
+  - name: dim_data_sets
+    columns:
+      - name: dataset_id
+        tests:
+          - unique
+          - not_null
+
+
+  - name: dim_test_types
+    columns:
+      - name: test_id
+        tests:
+          - unique
+          - not_null
+
+
+  - name: dim_instruction_version_types
+    columns:
+      - name: instver_id
+        tests:
+          - unique
+          - not_null
+
+
+  - name: stg_raw_sensor_data
+    columns:
+      - name: sensor_entry_id
+        tests:
+          - unique
+          - not_null
+
+
+  - name: stg_raw_test_run_data
+    columns:
+      - name: test_run_id
+        tests:
+          - unique
+          - not_null

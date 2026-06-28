@@ -6,6 +6,7 @@ source as (
 renamed as (
 
     select
+        sensor_entry_id,
         machine_id,
         test_run_id,
         hardware_id,

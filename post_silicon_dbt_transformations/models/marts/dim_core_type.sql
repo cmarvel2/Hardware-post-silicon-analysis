@@ -14,7 +14,7 @@ stg_raw_sensor_data as (
     select * from {{ ref('stg_raw_sensor_data') }}
 )
 
-select
+select distinct
     st.sensor_id,
     st.sensor_name,
     ht.hardware_name,
