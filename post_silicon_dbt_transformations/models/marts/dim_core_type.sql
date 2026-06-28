@@ -27,20 +27,6 @@ select distinct
                 'cpu_power',
                 'cpu_temperature'
             ) 
-            and ( 
-                st.sensor_name like 'Core #1%'
-                or st.sensor_name like 'Core #2%'
-                or st.sensor_name like 'Core #3%'
-                or st.sensor_name like 'Core #4%'
-            )
-        then 'Zen 5'
-
-        when ht.hardware_name = 'AMD Ryzen AI 9 HX 370 w/ Radeon 890M'
-            and hf.hardware_field in (
-                'cpu_clock',
-                'cpu_power',
-                'cpu_temperature'
-            ) 
             and (
                 st.sensor_name like 'Core #5%'
                 or st.sensor_name like 'Core #6%'
@@ -52,6 +38,20 @@ select distinct
                 or st.sensor_name like 'Core #12%'
             )
         then 'Zen 5c'
+
+        when ht.hardware_name = 'AMD Ryzen AI 9 HX 370 w/ Radeon 890M'
+            and hf.hardware_field in (
+                'cpu_clock',
+                'cpu_power',
+                'cpu_temperature'
+            ) 
+            and ( 
+                st.sensor_name like 'Core #1%'
+                or st.sensor_name like 'Core #2%'
+                or st.sensor_name like 'Core #3%'
+                or st.sensor_name like 'Core #4%'
+            )
+        then 'Zen 5'
 
         else null
     end as core_type
