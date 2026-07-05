@@ -31,6 +31,7 @@ Steps:
 - Writing Report
   
 ## What I've learned and Implemented
+- Database design
 - Building End-to-end Data Pipeliens
 - Medallion Architecture
 - PostgeSQL
