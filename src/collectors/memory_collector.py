@@ -7,16 +7,16 @@ librefile = (currfile / ".." / "libs" / "LibreHardwareMonitorLib.dll").resolve()
 clr.AddReference(str(librefile))
 from LibreHardwareMonitor.Hardware import Computer, HardwareType, SensorType
 
+memory_computer = Computer()
+memory_computer.IsMemoryEnabled = True
+memory_computer.Open()
+
 def get_memory_metrics():
 
-    computer = Computer()
-    computer.IsMemoryEnabled = True
-    computer.Open()
-
-    wmemory_data  = {}
+    wmemory_data = {}
     wmemory_load = {}
 
-    for hardware in computer.Hardware:
+    for hardware in memory_computer.Hardware:
 
         if hardware.HardwareType == HardwareType.Memory:
             
@@ -28,8 +28,6 @@ def get_memory_metrics():
 
                 if sensor.SensorType == SensorType.Load:
                     wmemory_load[sensor.Name] = sensor.Value
-
-    computer.Close()
         
     return {
         "memory_load": wmemory_load,

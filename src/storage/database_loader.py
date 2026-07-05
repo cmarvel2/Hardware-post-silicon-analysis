@@ -25,6 +25,15 @@ class Database_Uploader:
         self.conn.execute("CREATE SCHEMA IF NOT EXISTS hardware_raw")
         self.conn.execute("SET SEARCH_PATH TO hardware_raw") 
 
+        self.known_hardware = set()
+        self.known_fields = set()
+        self.known_sensors = set()
+        self.machine_id = None
+        self.hardware_id_cache = {}
+        self.field_id_cache = {}
+        self.sensor_id_cache = {}
+
+
     def tables_setup(self):
 
         self.cur.execute('''
@@ -153,53 +162,43 @@ class Database_Uploader:
                 )
         
     def insert_components_into_machines(self, cpudatadict, gpudatadict):
-        processorlist = []
-
-        for cpuname in cpudatadict.keys():
-            processorlist.append(cpuname)
-
+        processorlist = list(cpudatadict.keys())
         for gpu in gpudatadict:
-            for gpuname in gpu.keys():
-                processorlist.append(gpuname)
-            
+            processorlist.extend(gpu.keys())
+
         self.cur.execute('SELECT machine_id FROM observed_machines WHERE machine_uuid = %s', (self.uuid,))
         machine_id = self.cur.fetchone()[0]
 
-        for processor_fact in processorlist:
-            self.cur.execute('SELECT hardware_id FROM hardware_types WHERE hardware_name = %s', (processor_fact,))
-            hardware_id = self.cur.fetchone()[0]
+        self.cur.execute('SELECT hardware_name, hardware_id FROM hardware_types WHERE hardware_name = ANY(%s)', (processorlist,))
+        hw_id_map = {name: hid for name, hid in self.cur.fetchall()}
 
-            self.cur.execute(
-                '''INSERT INTO machine_components (machine_id, hardware_id)
-                    VALUES (%s, %s)
-                    ON CONFLICT DO NOTHING''',
-                    (machine_id,
-                     hardware_id,)
-                    )
+        self.cur.executemany(
+            '''INSERT INTO machine_components (machine_id, hardware_id)
+                VALUES (%s, %s)
+                ON CONFLICT DO NOTHING''',
+            [(machine_id, hw_id_map[name]) for name in processorlist]
+        )
         
     def insert_into_types(self, normalized_hw_data):
-        for row in normalized_hw_data:
-            self.cur.execute(
-                '''INSERT INTO hardware_types (hardware_name)
-                    VALUES (%s)
-                    ON CONFLICT DO NOTHING''',
-                    (row.sensorhardware,)
-                    )
-                
-            self.cur.execute(
-                '''INSERT INTO hardware_fields (hardware_field)
-                    VALUES (%s)
-                    ON CONFLICT DO NOTHING''',
-                    (row.sensorfield,)
-                    )
-                
-            self.cur.execute(
-                '''INSERT INTO sensor_types (sensor_name)
-                    VALUES(%s)
-                    ON CONFLICT DO NOTHING''',
-                    (row.sensorname,)
-                    )
-                        
+        self.cur.executemany(
+            '''INSERT INTO hardware_types (hardware_name)
+                VALUES (%s)
+                ON CONFLICT DO NOTHING''',
+            [(row.sensorhardware,) for row in normalized_hw_data]
+        )
+        self.cur.executemany(
+            '''INSERT INTO hardware_fields (hardware_field)
+                VALUES (%s)
+                ON CONFLICT DO NOTHING''',
+            [(row.sensorfield,) for row in normalized_hw_data]
+        )
+        self.cur.executemany(
+            '''INSERT INTO sensor_types (sensor_name)
+                VALUES (%s)
+                ON CONFLICT DO NOTHING''',
+            [(row.sensorname,) for row in normalized_hw_data]
+        )
+                            
     def insert_into_test_types(self, testlist):
         for test_type in testlist:
             self.cur.execute(
@@ -285,28 +284,33 @@ class Database_Uploader:
     def insert_into_sensor_data(self, normalized_hw_data, timestamp):
         self.cur.execute('SELECT machine_id FROM observed_machines WHERE machine_uuid = %s', (self.uuid,))
         machine_id = self.cur.fetchone()[0]
-        
-        for row in normalized_hw_data:
-            self.cur.execute('SELECT hardware_id FROM hardware_types WHERE hardware_name = %s', (row.sensorhardware,))
-            hardware_id = self.cur.fetchone()[0]
 
-            self.cur.execute('SELECT field_id FROM hardware_fields WHERE hardware_field = %s', (row.sensorfield,))
-            field_id = self.cur.fetchone()[0]
+        unique_hw = list({row.sensorhardware for row in normalized_hw_data})
+        unique_fields = list({row.sensorfield for row in normalized_hw_data})
+        unique_sensors = list({row.sensorname for row in normalized_hw_data})
 
-            self.cur.execute('SELECT sensor_id FROM sensor_types WHERE sensor_name = %s', (row.sensorname,))
-            sensortype_id = self.cur.fetchone()[0]
+        self.cur.execute('SELECT hardware_name, hardware_id FROM hardware_types WHERE hardware_name = ANY(%s)', (unique_hw,))
+        hw_id_map = {name: hid for name, hid in self.cur.fetchall()}
 
-        
-            self.cur.execute(
-                '''INSERT INTO raw_sensor_data (machine_id, test_run_id, hardware_id, hardware_field_id, sensor_id, sensor_value, collection_ts)
-                    VALUES(%s, %s, %s, %s, %s, %s, %s)
-                    ON CONFLICT DO NOTHING''',
-                    (machine_id,
-                    self.test_run_id,
-                    hardware_id,
-                    field_id,
-                    sensortype_id,
-                    row.sensorvalue,
-                    timestamp,)
+        self.cur.execute('SELECT hardware_field, field_id FROM hardware_fields WHERE hardware_field = ANY(%s)', (unique_fields,))
+        field_id_map = {field: fid for field, fid in self.cur.fetchall()}
+
+        self.cur.execute('SELECT sensor_name, sensor_id FROM sensor_types WHERE sensor_name = ANY(%s)', (unique_sensors,))
+        sensor_id_map = {name: sid for name, sid in self.cur.fetchall()}
+
+        self.cur.executemany(
+            '''INSERT INTO raw_sensor_data (machine_id, test_run_id, hardware_id, hardware_field_id, sensor_id, sensor_value, collection_ts)
+                VALUES(%s, %s, %s, %s, %s, %s, %s)
+                ON CONFLICT DO NOTHING''',
+            [
+                (machine_id,
+                self.test_run_id,
+                hw_id_map[row.sensorhardware],
+                field_id_map[row.sensorfield],
+                sensor_id_map[row.sensorname],
+                row.sensorvalue,
+                timestamp)
+                for row in normalized_hw_data
+            ]
         )
-            
+                

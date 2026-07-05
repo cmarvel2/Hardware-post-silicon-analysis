@@ -7,15 +7,15 @@ librefile = (currfile / ".." / "libs" / "LibreHardwareMonitorLib.dll").resolve()
 clr.AddReference(str(librefile))
 from LibreHardwareMonitor.Hardware import Computer, HardwareType, SensorType
         
-def get_gpu_metrics():
+gpu_computer = Computer()
+gpu_computer.IsGpuEnabled = True
+gpu_computer.Open()
 
-    computer = Computer()
-    computer.IsGpuEnabled = True
-    computer.Open()
+def get_gpu_metrics():
 
     gpus = []
 
-    for hardware in computer.Hardware:
+    for hardware in gpu_computer.Hardware:
         if hardware.HardwareType == HardwareType.GpuAmd:
                     
             hardware.Update()
@@ -28,17 +28,16 @@ def get_gpu_metrics():
             for sensor in hardware.Sensors:
                 
                 if sensor.SensorType == SensorType.Load:
-                    wgpu_load[sensor.Name] =sensor.Value
+                    wgpu_load[sensor.Name] = sensor.Value
 
                 elif sensor.SensorType == SensorType.Clock:
-                    wgpu_clock[sensor.Name] =sensor.Value
+                    wgpu_clock[sensor.Name] = sensor.Value
 
                 elif sensor.SensorType == SensorType.Temperature:
-                    wgpu_temperature[sensor.Name] =sensor.Value
+                    wgpu_temperature[sensor.Name] = sensor.Value
 
                 elif sensor.SensorType == SensorType.Power:
                     wgpu_power[sensor.Name] = sensor.Value
-
 
             gpus.append({hardware.Name: {
             "gpu_load": wgpu_load,
@@ -58,13 +57,13 @@ def get_gpu_metrics():
 
             for sensor in hardware.Sensors:
                 if sensor.SensorType == SensorType.Load:
-                    wgpu_load[sensor.Name] =sensor.Value
+                    wgpu_load[sensor.Name] = sensor.Value
 
                 elif sensor.SensorType == SensorType.Clock:
-                    wgpu_clock[sensor.Name] =sensor.Value
+                    wgpu_clock[sensor.Name] = sensor.Value
 
                 elif sensor.SensorType == SensorType.Temperature:
-                    wgpu_temperature[sensor.Name] =sensor.Value
+                    wgpu_temperature[sensor.Name] = sensor.Value
 
                 elif sensor.SensorType == SensorType.Power:
                     wgpu_power[sensor.Name] = sensor.Value
@@ -76,7 +75,5 @@ def get_gpu_metrics():
             "gpu_power": wgpu_power
             }})
 
-    computer.Close()
-    
     return gpus
 
