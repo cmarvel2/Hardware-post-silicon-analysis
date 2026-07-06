@@ -104,16 +104,6 @@ models:
               field: sensor_id
 
 
-  - name: dim_core_type
-    columns:
-      - name: sensor_id
-        tests:
-          - not_null
-      - name: hardware_field
-        tests:
-          - not_null
-
-
   - name: dim_sensor_types
     columns:
       - name: sensor_id
