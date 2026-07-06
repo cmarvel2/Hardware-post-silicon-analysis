@@ -30,5 +30,11 @@ Steps:
 ## Analyses and Dashboard
 - Writing Report
   
-## What I've learned
+## What I've learned and Implemented
+- Database design
+- Building End-to-end Data Pipeliens
+- Medallion Architecture
+- PostgeSQL
+- Simple visualizations with PowerBI and DAX
+- dbt (models, staging, marts, fct, dim, etc...)
 
