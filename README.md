@@ -1,11 +1,13 @@
 # CPU Cores Post Silicon Analysis
 
 ## Engineering Problem
-"The CPU cores team needs to understand how the HX 370's two distinct core types — the four high-performance Zen 5 cores and the eight efficiency-focused Zen 5c cores — diverge in their power consumption behavior when subjected to a sustained steady-state workload. The team already knows clock frequency and temperature lock in tight. What is less characterized is whether the two core architectures draw power differently per unit of clock frequency they sustain: in plain terms, is each MHz of frequency on a Zen 5c core "cheaper" or "more expensive" in watts than on a Zen 5 core, and does that relationship hold the same way across SSE, AVX2, and AVX512? The team needs this quantified across all three instruction sets so that any architectural difference in per-core power efficiency between Zen 5 and Zen 5c can be identified, documented, and compared against what the cTDP design range would predict."
+"The CPU cores team needs to understand how the HX 370's two distinct core types — the four high-performance Zen 5 cores and the eight compact Zen 5c cores — differ in core power use during sustained steady-state workloads. The main question is whether each core type uses a different amount of core SMU power for every MHz of effective clock speed it sustains. In plain terms, the team needs to determine whether a MHz on a Zen 5c core is cheaper or more expensive in watts than a MHz on a Zen 5 core.
+
+This needs to be measured across SSE, AVX2, and AVX512 workloads to determine whether the difference stays consistent across instruction sets. Package power, whole-CPU temperature, and effective clock speed will also be monitored to show whether the system remains stable after thermal ramp-up and whether package-level behavior changes by workload. The findings will document the measured power-per-clock trade-off between Zen 5 and Zen 5c on the tested ASUS ProArt P16 performance-mode configuration."
 
 ### Analytical Questions Derived from the Problem
 - Does the efficiency ratio differ between Zen 5 and Zen 5c cores?
-- Does that difference hold consistently across SSE, AVX2, and AVX512, or does it change?
+- Does package power, whole-CPU temperature, and effective clock speed remain stable during the steady-state period of each workload?
 
 ## Data Architecture
 - High level diagram & dbt DAG
