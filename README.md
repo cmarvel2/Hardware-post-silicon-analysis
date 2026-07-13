@@ -1,4 +1,4 @@
-# CPU Cores Post Silicon Analysis
+# CPU Core Performance Validation Analysis
 
 ## Engineering Problem
 "The CPU cores team needs to understand how the HX 370's two distinct core types — the four high-performance Zen 5 cores and the eight compact Zen 5c cores — differ in core power use during sustained steady-state workloads. The main question is whether each core type uses a different amount of core SMU power for every MHz of effective clock speed it sustains. In plain terms, the team needs to determine whether a MHz on a Zen 5c core is cheaper or more expensive in watts than a MHz on a Zen 5 core.
