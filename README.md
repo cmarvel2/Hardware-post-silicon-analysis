@@ -27,7 +27,7 @@ Steps:
 - Open main.py and set endtime to the amount of time you intend on running your workload in minutes
 - Open main.py and set chosen_workload to the you intend on using from your benchmarking software
 - Run your benchmark software and main.py script alongside it with high priority and review logs console to ensure the program is executing successfully
-- from `cd post_silicon_dbt_transformations` folder run `dbt build` to create new dbt models used by Power BI within your PostgreSQL database
+- New dbt models used by Power BI within your PostgreSQL database are automatically created with subprocess, no need to run it separatley now
  
 ## Analysis & Validation report
 - [Link to written report:](https://umich-my.sharepoint.com/:w:/g/personal/cmarvel_umich_edu/IQAfCteE0Ut2RqWBQZsi3vi6AYqR2JJwHK2cvWhPIUCI3GU?e=486AAi)
