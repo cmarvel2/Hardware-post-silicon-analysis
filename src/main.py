@@ -6,6 +6,7 @@ from utils import machine_uuid
 import os
 import time
 from datetime import datetime
+import subprocess
 
 def run_pipeline():
 
@@ -15,8 +16,6 @@ def run_pipeline():
     dbuser = os.getenv("DBUSER")
     dbpassword = os.getenv("DBPASSWORD")
     sslmode = os.getenv("SSLMODE")
-
-    endtime = 55
 
     test_options = ['IDLE','OCCT_CPU_RAM', 'OCCT_CPU', 'OCCT_LINPACK', 'OCCT_MEMORY',
                 'OCCT_3D_ADAPTIVE', 'OCCT_VRAM', 'OCCT_POWER']
@@ -29,13 +28,12 @@ def run_pipeline():
 
     data_sets = ['Medium', 'Large', 'Unavailable']
 
-
-
     workload_test = {'Test': 'OCCT_CPU', 
-                     'InstructionOrVersion' : 'SSE', 
-                     'Load' : 'Steady',
-                     'Mode' : 'Normal',
-                     'DataSet' : 'Unavailable'
+                     'InstructionOrVersion' : 'AVX512', 
+                     'Load' : 'Variable',
+                     'Mode' : 'Extreme',
+                     'DataSet' : 'Unavailable',
+                     'Endtime' : 55
     }
 
     log = setup_logs()
@@ -44,7 +42,7 @@ def run_pipeline():
 
     log.info("Pipeline Running")
     dbconnect = database_loader.Database_Uploader(dbhost, dbname, dbuser, dbpassword, sslmode, uuid)
-    end = time.time() + (60 * endtime)
+    end = time.time() + (60 * workload_test['Endtime'])
     date = datetime.now()
 
     function_logs(dbconnect.tables_setup,log)
@@ -61,7 +59,7 @@ def run_pipeline():
                                 workload_test['Load'], 
                                 workload_test['Mode'],
                                 workload_test['DataSet'],
-                                endtime, date)
+                                workload_test['Endtime'], date)
 
     dbconnect.conn.commit()
 
@@ -132,6 +130,10 @@ def run_pipeline():
 
     dbconnect.conn.commit()
     dbconnect.conn.close()
+
+    log.info("Pipeline run complete, Running dbt transformations")
+    subprocess.run("cd ../post_silicon_dbt_transformations && dbt build", shell=True, check=True)
+    log.info("dbt transformations complete")
 
 if __name__ == '__main__':
     run_pipeline()
