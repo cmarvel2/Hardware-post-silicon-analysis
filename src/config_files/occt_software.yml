@@ -1,0 +1,9 @@
+version: 1
+OCCT:
+  stability_test:
+    mode: Extreme
+    load_type: Variable
+    start_at_cycle: 1
+    instruction_set: AVX512
+    thread_settings: Fixed
+    thread_count: 24

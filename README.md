@@ -17,26 +17,10 @@ This needs to be measured across SSE, AVX2, and AVX512 workloads to determine wh
 <img width="2497" height="1550" alt="image" src="https://github.com/user-attachments/assets/547ee094-359c-4545-a4a8-483add1ecd95" />
 
 ## Prerequisites / How to Run The Project
-- Any benchmarking tool (This was made with OCCT in mind)
-- PostgreSQL (Or Azure PostgreSQL for multiple devices)
-- DBT Core
-
-Steps:
-- Install all the libraries with `pip install -r requirements.txt`
-- Create your .env file and set your variables for your PostgreSQL database
-- Open main.py and set endtime to the amount of time you intend on running your workload in minutes
-- Open main.py and set chosen_workload to the you intend on using from your benchmarking software
-- Run your benchmark software and main.py script alongside it with high priority and review logs console to ensure the program is executing successfully
-- New dbt models used by Power BI within your PostgreSQL database are automatically created with subprocess, no need to run it separatley now
+**Undergoing complete migration from a tightly coupled monolithic database to a decoupled distributed one, targeting a full bronze, silver, and gold medallion architecture. and moving from an OLTP database to an OLAP one.
  
 ## Analysis & Validation report
 - [Link to written report:](https://umich-my.sharepoint.com/:w:/g/personal/cmarvel_umich_edu/IQAfCteE0Ut2RqWBQZsi3vi6AYqR2JJwHK2cvWhPIUCI3GU?e=486AAi)
   
-## What I've learned and Implemented
-- Database design
-- Building End-to-end Data Pipeliens
-- Medallion Architecture
-- PostgeSQL
-- Simple visualizations with PowerBI and DAX
-- dbt (models, staging, marts, fct, dim, etc...)
+
 

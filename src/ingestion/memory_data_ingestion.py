@@ -1,7 +1,7 @@
-from pathlib import Path
+import pathlib 
 import clr
 
-currfile = Path(__file__).parent.resolve()
+currfile = pathlib.Path(__file__).parent.resolve()
 librefile = (currfile / ".." / "libs" / "LibreHardwareMonitorLib.dll").resolve()
     
 clr.AddReference(str(librefile))

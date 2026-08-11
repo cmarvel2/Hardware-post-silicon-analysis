@@ -1,1 +1,0 @@
-SELECT * FROM {{source('hardware_raw', 'sensor_types')}}
