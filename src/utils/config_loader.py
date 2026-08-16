@@ -3,7 +3,7 @@ import yaml
 
 def load_conf(filename: str) -> dict:
     try:
-        path = Path(__file__).resolve().parents[1] / "config_files"
+        path = Path(__file__).resolve().parents[1] / "configs"
 
         destfile = fr"{path}\{filename}"
 

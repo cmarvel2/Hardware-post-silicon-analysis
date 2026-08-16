@@ -1,6 +1,6 @@
 import winreg
 import logging
-from pipeline_utils import logger
+from src.utils import logger
 
 logger.logging_setup()
 

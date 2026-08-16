@@ -1,5 +1,5 @@
 import logging.config
-from pipeline_utils import config_loader
+from src.utils import config_loader
 
 def logging_setup(loggingfile: str='logging.yml') -> None:
     try:
