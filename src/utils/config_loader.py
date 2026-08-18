@@ -1,13 +1,11 @@
 from pathlib import Path
 import yaml
 
-def load_conf(filename: str) -> dict:
+def load_conf(filename: str | Path ) -> dict:
     try:
-        path = Path(__file__).resolve().parents[1] / "configs"
+        fullpath = Path(filename)
 
-        destfile = fr"{path}\{filename}"
-
-        with open(destfile, "r") as ofile:
+        with open(fullpath, "r") as ofile:
             loadconfig = yaml.safe_load(ofile)
 
         return loadconfig
