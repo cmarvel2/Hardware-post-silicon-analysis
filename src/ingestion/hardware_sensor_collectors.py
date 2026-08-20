@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 import clr
 
 from src.utils import logger
-from ingestion.schema_models import HardwareDataStorage
+from ingestion.models import HardwareDataStorage
 
 
 logger.logging_setup()
@@ -36,7 +36,7 @@ def get_cpu_data(computer: Computer, HardwareType: HardwareType) -> list[Hardwar
                 hardwarename = f"{hardware.Name} {hardware.Identifier}"
 
                 for sensor in hardware.Sensors:
-                    sensor_list.append(HardwareDataStorage(timestamp=datetime.now(timezone.utc).strftime(r"%Y%m%d_%H%M%S"), hardware_name=hardwarename, sensor_name=sensor.Name, sensor_type=sensor.SensorType.ToString(), sensor_value=sensor.Value))
+                    sensor_list.append(HardwareDataStorage(timestamp=datetime.now(timezone.utc).strftime(r"%Y%m%d_%H%M%S%f")[:-3], hardware_name=hardwarename, sensor_name=sensor.Name, sensor_type=sensor.SensorType.ToString(), sensor_value=sensor.Value))
         logging.info("CPU data ingestion completed")
         return sensor_list
     except Exception as e:
@@ -53,7 +53,7 @@ def get_gpu_data(computer: Computer, HardwareType: HardwareType) -> list[Hardwar
                 hardwarename = f"{hardware.Name} {hardware.Identifier}"
 
                 for sensor in hardware.Sensors:
-                    sensor_list.append(HardwareDataStorage(timestamp=datetime.now(timezone.utc).strftime(r"%Y%m%d_%H%M%S"), hardware_name=hardwarename, sensor_name=sensor.Name, sensor_type=sensor.SensorType.ToString(), sensor_value=sensor.Value))
+                    sensor_list.append(HardwareDataStorage(timestamp=datetime.now(timezone.utc).strftime(r"%Y%m%d_%H%M%S%f")[:-3], hardware_name=hardwarename, sensor_name=sensor.Name, sensor_type=sensor.SensorType.ToString(), sensor_value=sensor.Value))
         logging.info("GPU data ingestion completed")
         return sensor_list
     except Exception as e:
@@ -71,9 +71,9 @@ def get_memory_data(computer: Computer, HardwareType: HardwareType) -> list[Hard
                 hardwarename = f"{hardware.Name} {hardware.Identifier}"
 
                 for sensor in hardware.Sensors:
-                    sensor_list.append(HardwareDataStorage(timestamp=datetime.now(timezone.utc).strftime(r"%Y%m%d_%H%M%S"), hardware_name=hardwarename, sensor_name=sensor.Name, sensor_type=sensor.SensorType.ToString(), sensor_value=sensor.Value))
-                logging.info("Memory data ingestion completed")
-                return sensor_list
+                    sensor_list.append(HardwareDataStorage(timestamp=datetime.now(timezone.utc).strftime(r"%Y%m%d_%H%M%S%f")[:-3], hardware_name=hardwarename, sensor_name=sensor.Name, sensor_type=sensor.SensorType.ToString(), sensor_value=sensor.Value))
+        logging.info("Memory data ingestion completed")
+        return sensor_list
     except Exception as e:
         logging.error(f"Error {e} ingesting data from memory sensors")
         raise

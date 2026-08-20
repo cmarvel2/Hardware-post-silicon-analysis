@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from typing import Any
+from pydantic import BaseModel
 
 @dataclass(slots=True)
 class HardwareDataStorage:
@@ -10,6 +11,6 @@ class HardwareDataStorage:
     sensor_value: int | float | None
 
 @dataclass(slots=True)
-class HardwarePayloadSchema:
+class HardwarePayload(BaseModel):
     metadata: dict[str, Any] = field(default_factory=dict)
-    snapshots: list[dict[str, int | float | str | None]] = field(default_factory=list)
+    snapshots: list[HardwareDataStorage] = field(default_factory=list)

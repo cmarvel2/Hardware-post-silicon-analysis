@@ -2,20 +2,18 @@ from datetime import datetime, timezone
 import logging
 import os
 import uuid
-import json
-from dataclasses import  asdict
  
 from azure.identity import ClientSecretCredential
 from azure.storage.blob import BlobServiceClient, ContentSettings
 from dotenv import load_dotenv, find_dotenv
 
-from schema_models import HardwarePayloadSchema
+from ingestion.models import HardwarePayload
 from src.utils import config_loader, machine_uuid, logger
 
 class UploadMemory:
     def __init__(self) -> None:
         self.count = 0
-        self.payload = HardwarePayloadSchema()
+        self.payload = HardwarePayload()
 
     def increment(self) -> None:
         self.count += 1
@@ -35,7 +33,7 @@ class UploadMemory:
         else:
             logging.info("Sensor data snapshot appended")
 
-        self.payload.snapshots.append(combined_tuple)
+        self.payload.snapshots.extend(combined_tuple)
 
     def check_buffer(self, buffer_size_limit: int) -> bool:
         if len(self.payload.snapshots) >= buffer_size_limit:
@@ -63,14 +61,15 @@ def adls_credentials() -> tuple[ClientSecretCredential, str]:
     logging.info("Enviroment variables loaded for Azure blob conection")
     return credentials, account_url
 
-def upload_blob(credentials: ClientSecretCredential, account_url: str, buffer_complete: bool, sensor_buffer: HardwarePayloadSchema):
+def upload_blob(credentials: ClientSecretCredential, account_url: str, buffer_complete: bool, sensor_buffer: HardwarePayload):
     if buffer_complete == True:
         try:
             container_name = os.getenv("AZURE_HW_BLOB_NAME")
             blob_service_client = BlobServiceClient(account_url=account_url, credential=credentials)
             container_client = blob_service_client.get_container_client(container=container_name)
 
-            sensors_json = json.dumps(asdict(sensor_buffer), default=str)
+            HardwarePayload.model_validate(sensor_buffer.model_dump())
+            sensors_json = sensor_buffer.model_dump_json()
 
             timestamp = datetime.now(timezone.utc).strftime(r"%Y%m%d_%H%M%S")
             event_id = uuid.uuid4()
