@@ -1,4 +1,5 @@
 import logging.config
+
 from src.utils import config_loader
 
 def logging_setup(loggingfile: str=r'C:\courses_and_personal_projects\System Post Silicon Analysis\src\configs\logging.yml') -> None:

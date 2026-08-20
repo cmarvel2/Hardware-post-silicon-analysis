@@ -1,5 +1,6 @@
 import winreg
 import logging
+
 from src.utils import logger
 
 logger.logging_setup()

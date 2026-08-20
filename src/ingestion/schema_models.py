@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 @dataclass(slots=True)
@@ -11,5 +11,5 @@ class HardwareDataStorage:
 
 @dataclass(slots=True)
 class HardwarePayloadSchema:
-    metadata: dict[str, Any]
-    snapshots: list[dict[str, int | float | str | None]]
+    metadata: dict[str, Any] = field(default_factory=dict)
+    snapshots: list[dict[str, int | float | str | None]] = field(default_factory=list)
