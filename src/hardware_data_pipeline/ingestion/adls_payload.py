@@ -16,9 +16,6 @@ class UploadMemory:
         self.count = 0
         self.payload = HardwarePayload()
 
-    def increment(self) -> None:
-        self.count += 1
-
     def payload_buffer_add(self, filename: str, cpu_payload: list, gpu_payload: list, memory_payload: list) -> None:
         combined_tuple = (cpu_payload + gpu_payload + memory_payload)
         if not self.payload.metadata and not self.payload.snapshots:
@@ -35,6 +32,7 @@ class UploadMemory:
             logging.info("Sensor data snapshot appended")
 
         self.payload.snapshots.extend(combined_tuple)
+        self.count += 1
 
     def check_buffer(self, buffer_size_limit: int) -> bool:
         if len(self.payload.snapshots) >= buffer_size_limit:
@@ -46,6 +44,7 @@ class UploadMemory:
     def clear_buffer(self, buffer_uploaded) -> None:
         if buffer_uploaded == True:
             self.payload.snapshots.clear()
+            self.count = 0
             logging.info("Payload snapshots list cleared")
 
 def adls_credentials() -> tuple[ClientSecretCredential, str]:
