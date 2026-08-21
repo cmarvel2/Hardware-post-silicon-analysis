@@ -1,4 +1,4 @@
-from src.utils.config_loader import load_conf
+from hardware_data_pipeline.utils.config_loader import load_conf
 import yaml
 import pytest
 

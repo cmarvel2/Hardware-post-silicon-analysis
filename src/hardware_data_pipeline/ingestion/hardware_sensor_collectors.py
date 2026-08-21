@@ -4,8 +4,8 @@ from datetime import datetime, timezone
 
 import clr
 
-from src.utils import logger
-from ingestion.models import HardwareDataStorage
+from hardware_data_pipeline.utils import logger
+from hardware_data_pipeline.ingestion.models import HardwareDataStorage
 
 
 logger.logging_setup()

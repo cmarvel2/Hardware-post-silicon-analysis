@@ -7,8 +7,9 @@ from azure.identity import ClientSecretCredential
 from azure.storage.blob import BlobServiceClient, ContentSettings
 from dotenv import load_dotenv, find_dotenv
 
-from ingestion.models import HardwarePayload
-from src.utils import config_loader, machine_uuid, logger
+from hardware_data_pipeline.ingestion.models import HardwarePayload
+from hardware_data_pipeline.utils import config_loader, logger
+from hardware_data_pipeline.utils import machine_uuid
 
 class UploadMemory:
     def __init__(self) -> None:
