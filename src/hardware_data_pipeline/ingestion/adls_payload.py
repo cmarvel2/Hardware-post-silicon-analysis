@@ -11,6 +11,8 @@ from hardware_data_pipeline.ingestion.models import HardwarePayload
 from hardware_data_pipeline.utils import config_loader, logger
 from hardware_data_pipeline.utils import machine_uuid
 
+logger.logging_setup()
+
 class UploadMemory:
     def __init__(self) -> None:
         self.count = 0
@@ -19,7 +21,6 @@ class UploadMemory:
     def payload_buffer_add(self, filename: str, cpu_payload: list, gpu_payload: list, memory_payload: list) -> None:
         combined_tuple = (cpu_payload + gpu_payload + memory_payload)
         if not self.payload.metadata and not self.payload.snapshots:
-            logging.info("Payload metadata initialzied and first data snapshot appended")
             software_config = config_loader.load_conf(filename)
             windows_device_uuid = machine_uuid.get_windows_uuid()
 
@@ -28,6 +29,7 @@ class UploadMemory:
             self.payload.metadata["device_id"] = windows_device_uuid
             self.payload.metadata["test_id"] = uuid.uuid4()
             self.payload.metadata["test_date"] = datetime.now(timezone.utc).strftime(r"%Y%m%d_%H%M%S")
+            logging.info("Payload metadata initialzied")
         else:
             logging.info("Sensor data snapshot appended")
 
