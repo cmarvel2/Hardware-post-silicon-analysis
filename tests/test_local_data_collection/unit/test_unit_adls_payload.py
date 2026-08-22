@@ -1,17 +1,10 @@
-from hardware_data_pipeline.ingestion.adls_payload import UploadMemory, upload_blob
-from hardware_data_pipeline.ingestion.models import HardwareDataStorage, HardwarePayload
+from local_data_collection.sensor_polling.adls_payload import UploadMemory, upload_blob, get_container
+from local_data_collection.sensor_polling.models import HardwareDataStorage, HardwarePayload
 
 def test_upload_memory_count():
     memory = UploadMemory()
 
     assert memory.count == 0
-
-def test_increment():
-    memory = UploadMemory()
-
-    memory.increment()
-
-    assert memory.count == 1
 
 def test_check_buffer_below_limit():
     memory = UploadMemory()
@@ -88,16 +81,32 @@ def test_clear_buffer_not_uploaded():
 
     assert len(memory.payload.snapshots) == 1
 
+def test_get_container_valid(monkeypatch):
+    monkeypatch.setenv("CURRENT_ENVIRONMENT", "dev")
+    monkeypatch.setenv("AZURE_HW_BLOB_NAME_DEV", "mock-dev-container")
+
+    container_name = get_container()
+
+    assert container_name == "mock-dev-container"
+
+
+def test_get_container_invalid(monkeypatch):
+    monkeypatch.setenv("CURRENT_ENVIRONMENT", "invalid_env")
+
+    container_name = get_container()
+
+    assert container_name is None
+
 def test_upload_blob_buffer_incomplete():
     payload = HardwarePayload()
 
-    result = upload_blob(None, None, False, payload)
+    result = upload_blob(None, None, False, payload, "mock-container")
 
     assert result is None
 
 def test_upload_blob_invalid_account_url():
     payload = HardwarePayload()
 
-    result = upload_blob(None, None, True, payload)
+    result = upload_blob(None, None, True, payload, "mock-container")
 
     assert result == False

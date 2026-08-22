@@ -1,7 +1,7 @@
 import winreg
 import logging
 
-from hardware_data_pipeline.utils import logger
+from local_data_collection.utils import logger
 
 logger.logging_setup()
 

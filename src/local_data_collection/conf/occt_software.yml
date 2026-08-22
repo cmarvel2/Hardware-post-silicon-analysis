@@ -1,10 +1,11 @@
 version: 1
 OCCT:
   stability_test:
+    configuration: CPU
     length_in_minutes: 55
     mode: Extreme
     load_type: Variable
     start_at_cycle: 1
-    instruction_set: AVX512
+    instruction_set: SSE
     thread_settings: Fixed
     thread_count: 24

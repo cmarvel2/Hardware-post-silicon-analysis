@@ -4,14 +4,14 @@ from datetime import datetime, timezone
 
 import clr
 
-from hardware_data_pipeline.utils import logger
-from hardware_data_pipeline.ingestion.models import HardwareDataStorage
+from local_data_collection.utils import logger
+from local_data_collection.sensor_polling.models import HardwareDataStorage
 
 
 logger.logging_setup()
 
 currfile = pathlib.Path(__file__).parent.resolve()
-librefile = (currfile / ".." / "ingestion" / "libs" / "LibreHardwareMonitorLib.dll").resolve()
+librefile = (currfile / "libs" / "LibreHardwareMonitorLib.dll").resolve()
 clr.AddReference(str(librefile))
 from LibreHardwareMonitor.Hardware import Computer, HardwareType
 

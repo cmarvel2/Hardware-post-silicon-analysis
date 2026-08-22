@@ -1,4 +1,4 @@
-from hardware_data_pipeline.ingestion.hardware_sensor_collectors import init_computer, get_cpu_data, get_gpu_data, get_memory_data
+from local_data_collection.sensor_polling.hardware_sensor_collectors import init_computer, get_cpu_data, get_gpu_data, get_memory_data
 
 def test_init_computer():
     computer, hardware_type = init_computer(cpu=True)

@@ -1,7 +1,8 @@
-from hardware_data_pipeline.ingestion.adls_payload import UploadMemory, adls_credentials, upload_blob
-from hardware_data_pipeline.ingestion.models import HardwareDataStorage
+from local_data_collection.sensor_polling.adls_payload import UploadMemory, adls_credentials, upload_blob, get_container
+from local_data_collection.sensor_polling.models import HardwareDataStorage
 
-def test_payload_buffer_add():
+def test_payload_buffer_add(monkeypatch):
+
     memory = UploadMemory()
     sensor = HardwareDataStorage(
         timestamp="20260821_010200000",
@@ -12,7 +13,7 @@ def test_payload_buffer_add():
     )
 
     memory.payload_buffer_add(
-        r"C:\courses_and_personal_projects\hardware_data_pipeline\conf\occt_software.yml",
+        r"C:\courses_and_personal_projects\hardware_data_pipeline\src\local_data_collection\conf\occt_software.yml",
         [sensor],
         [sensor],
         [sensor]
@@ -26,6 +27,8 @@ def test_adls_credentials():
     assert account_url is not None
 
 def test_upload_blob():
+    container = get_container(environment="test")
+
     memory = UploadMemory()
     sensor = HardwareDataStorage(
         timestamp="20260821_010200000",
@@ -36,7 +39,7 @@ def test_upload_blob():
     )
 
     memory.payload_buffer_add(
-        r"C:\courses_and_personal_projects\hardware_data_pipeline\conf\occt_software.yml",
+        r"C:\courses_and_personal_projects\hardware_data_pipeline\src\local_data_collection\conf\occt_software.yml",
         [sensor],
         [],
         []
@@ -45,11 +48,14 @@ def test_upload_blob():
     credentials, account_url = adls_credentials()
     buffer_complete = memory.check_buffer(1)
 
+    test_blob = f"test_blob.json"
+    
     uploaded = upload_blob(
         credentials,
         account_url,
         buffer_complete,
-        memory.payload
+        memory.payload,
+        container
     )
 
     assert uploaded == True

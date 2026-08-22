@@ -11,5 +11,5 @@ class HardwareDataStorage:
     sensor_value: int | float | None
 
 class HardwarePayload(BaseModel):
-    metadata: dict[str, Any] = field(default_factory=dict)
-    snapshots: list[HardwareDataStorage] = field(default_factory=list)
+    metadata: dict[str, Any] = {}
+    snapshots: list[HardwareDataStorage] = []

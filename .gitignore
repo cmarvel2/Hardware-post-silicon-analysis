@@ -1,6 +1,11 @@
-#ignoring passwords
-.env
-__pycache__
+.databricks/
+build/
+dist/
+__pycache__/
+*.egg-info
 .venv/
-.pytest_cache
-
+scratch/**
+!scratch/README.md
+**/explorations/**
+**/!explorations/README.md
+.env

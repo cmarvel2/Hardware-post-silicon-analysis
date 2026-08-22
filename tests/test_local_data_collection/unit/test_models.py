@@ -1,4 +1,4 @@
-from hardware_data_pipeline.ingestion.models import HardwareDataStorage, HardwarePayload
+from local_data_collection.sensor_polling.models import HardwareDataStorage, HardwarePayload
 
 def test_hardware_data_storage():
     sensor = HardwareDataStorage(

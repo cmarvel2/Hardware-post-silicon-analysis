@@ -7,9 +7,10 @@ from azure.identity import ClientSecretCredential
 from azure.storage.blob import BlobServiceClient, ContentSettings
 from dotenv import load_dotenv, find_dotenv
 
-from hardware_data_pipeline.ingestion.models import HardwarePayload
-from hardware_data_pipeline.utils import config_loader, logger
-from hardware_data_pipeline.utils import machine_uuid
+from local_data_collection.sensor_polling.models import HardwarePayload
+from local_data_collection.utils import config_loader, logger, machine_uuid
+
+
 
 logger.logging_setup()
 
@@ -63,10 +64,23 @@ def adls_credentials() -> tuple[ClientSecretCredential, str]:
     logging.info("Enviroment variables loaded for Azure blob conection")
     return credentials, account_url
 
-def upload_blob(credentials: ClientSecretCredential, account_url: str, buffer_complete: bool, sensor_buffer: HardwarePayload):
+def get_container(environment: str | None=None) -> str:
+    try:
+        dev_environment = (environment or os.getenv("CURRENT_ENVIRONMENT")).lower()
+        container_mapping = {
+            "dev": os.getenv("AZURE_HW_BLOB_NAME_DEV"),
+            "test": os.getenv("AZURE_HW_BLOB_NAME_TEST"),
+            "prod": os.getenv("AZURE_HW_BLOB_NAME_PROD")
+        }
+        container_name = container_mapping.get(dev_environment)
+        logging.info(f"Current environment: {dev_environment} retrieved")
+        return container_name
+    except Exception as e:
+        logging.error(f"Error during container name indexing: {e}")
+
+def upload_blob(credentials: ClientSecretCredential, account_url: str, buffer_complete: bool, sensor_buffer: HardwarePayload, container_name: str):
     if buffer_complete == True:
         try:
-            container_name = os.getenv("AZURE_HW_BLOB_NAME")
             blob_service_client = BlobServiceClient(account_url=account_url, credential=credentials)
             container_client = blob_service_client.get_container_client(container=container_name)
 
