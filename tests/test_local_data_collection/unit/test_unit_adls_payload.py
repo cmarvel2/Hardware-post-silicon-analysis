@@ -1,4 +1,4 @@
-from local_data_collection.sensor_polling.adls_payload import UploadMemory, upload_blob, get_container
+from local_data_collection.sensor_polling.adls_payload import UploadMemory, upload_blob
 from local_data_collection.sensor_polling.models import HardwareDataStorage, HardwarePayload
 
 def test_upload_memory_count():
@@ -81,32 +81,32 @@ def test_clear_buffer_not_uploaded():
 
     assert len(memory.payload.snapshots) == 1
 
-def test_get_container_valid(monkeypatch):
-    monkeypatch.setenv("CURRENT_ENVIRONMENT", "dev")
-    monkeypatch.setenv("AZURE_HW_BLOB_NAME_DEV", "mock-dev-container")
-
-    container_name = get_container()
-
-    assert container_name == "mock-dev-container"
-
-
-def test_get_container_invalid(monkeypatch):
-    monkeypatch.setenv("CURRENT_ENVIRONMENT", "invalid_env")
-
-    container_name = get_container()
-
-    assert container_name is None
 
 def test_upload_blob_buffer_incomplete():
     payload = HardwarePayload()
 
-    result = upload_blob(None, None, False, payload, "mock-container")
+    result = upload_blob(
+        credentials=None,
+        env_mapping=None,
+        buffer_complete=False,
+        sensor_buffer=payload,
+    )
 
     assert result is None
 
 def test_upload_blob_invalid_account_url():
     payload = HardwarePayload()
 
-    result = upload_blob(None, None, True, payload, "mock-container")
+    invalid_env_mapping = {
+        "CONTAINER": "mock-container",
+        "STORAGE_URL": "https://invalid-account-url.blob.core.windows.net",
+    }
 
-    assert result == False
+    result = upload_blob(
+        credentials=None,
+        env_mapping=invalid_env_mapping,
+        buffer_complete=True,
+        sensor_buffer=payload,
+    )
+
+    assert result is False

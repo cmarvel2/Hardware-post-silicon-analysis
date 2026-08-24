@@ -10,7 +10,7 @@ def main():
     testing_configs = load_conf(r"C:\courses_and_personal_projects\hardware_data_pipeline\src\local_data_collection\conf\occt_software.yml")
     end_time = time.time() + 60 * testing_configs["OCCT"]["stability_test"]["length_in_minutes"]
     mainmemory = UploadMemory()
-    credential, account_url = adls_credentials()
+    credential, env_mapping = adls_credentials()
     container = get_container()
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -27,12 +27,12 @@ def main():
 
             check_buffer_result = mainmemory.check_buffer(buffer_size_limit=200000)
 
-            upload_blob_result = upload_blob(credentials=credential, account_url=account_url, buffer_complete=check_buffer_result, sensor_buffer=mainmemory.payload, container_name=container)
+            upload_blob_result = upload_blob(credentials=credential, env_mapping=env_mapping, buffer_complete=check_buffer_result, sensor_buffer=mainmemory.payload, container_name=container)
 
             mainmemory.clear_buffer(buffer_uploaded=upload_blob_result)
 
     if mainmemory.payload.snapshots:
-        upload_blob(credentials=credential, account_url=account_url, buffer_complete=True, sensor_buffer=mainmemory.payload)
+        upload_blob(credentials=credential, env_mapping=env_mapping, buffer_complete=True, sensor_buffer=mainmemory.payload)
 
 if __name__ == "__main__":
     main()

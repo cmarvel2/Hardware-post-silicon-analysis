@@ -10,8 +10,6 @@ from dotenv import load_dotenv, find_dotenv
 from local_data_collection.sensor_polling.models import HardwarePayload
 from local_data_collection.utils import config_loader, logger, machine_uuid
 
-
-
 logger.logging_setup()
 
 class UploadMemory:
@@ -50,39 +48,44 @@ class UploadMemory:
             self.count = 0
             logging.info("Payload snapshots list cleared")
 
-def adls_credentials() -> tuple[ClientSecretCredential, str]:
+def adls_credentials(environment: str | None=None) -> tuple[ClientSecretCredential, dict]:
     dotenv_path = find_dotenv()
     load_dotenv(dotenv_path)
-    
-    client_id = os.getenv("AZURE_CLIENT_ID")
-    tenant_id = os.getenv("AZURE_TENANT_ID")
-    client_secret = os.getenv("AZURE_CLIENT_SECRET")
-    account_url = os.getenv("AZURE_STORAGE_URL")
+
+    try:
+        client_id = os.getenv("AZURE_CLIENT_ID")
+        tenant_id = os.getenv("AZURE_TENANT_ID")
+        client_secret = os.getenv("AZURE_CLIENT_SECRET")
+
+        dev_environment = (environment or os.getenv("ENVIRONMENT")).lower()
+        if dev_environment == "dev":
+            env_mapping = {
+                "CONTAINER": os.getenv("DEV_LANDING_CONTAINER"),
+                "STORAGE_URL": os.getenv("DEV_AZURE_STORAGE_URL"),
+            }  
+        elif dev_environment == "test":
+            env_mapping = {
+                "CONTAINER": os.getenv("TEST_LANDING_CONTAINER"),
+                "STORAGE_URL": os.getenv("TEST_AZURE_STORAGE_URL"),
+            } 
+        elif dev_environment == "prod":
+            env_mapping = {
+                "CONTAINER": os.getenv("PROD_LANDING_CONTAINER"),
+                "STORAGE_URL": os.getenv("PROD_AZURE_STORAGE_URL"),
+            }
+        logging.info(f"Current environment: {dev_environment} retrieved")
+    except Exception as e:
+        logging.error(f"Error fetching varibales from env: {e}")
 
     credentials = ClientSecretCredential(client_id=client_id, client_secret=client_secret, tenant_id=tenant_id)
 
-    logging.info("Enviroment variables loaded for Azure blob conection")
-    return credentials, account_url
+    return credentials, env_mapping
 
-def get_container(environment: str | None=None) -> str:
-    try:
-        dev_environment = (environment or os.getenv("CURRENT_ENVIRONMENT")).lower()
-        container_mapping = {
-            "dev": os.getenv("AZURE_HW_BLOB_NAME_DEV"),
-            "test": os.getenv("AZURE_HW_BLOB_NAME_TEST"),
-            "prod": os.getenv("AZURE_HW_BLOB_NAME_PROD")
-        }
-        container_name = container_mapping.get(dev_environment)
-        logging.info(f"Current environment: {dev_environment} retrieved")
-        return container_name
-    except Exception as e:
-        logging.error(f"Error during container name indexing: {e}")
-
-def upload_blob(credentials: ClientSecretCredential, account_url: str, buffer_complete: bool, sensor_buffer: HardwarePayload, container_name: str):
+def upload_blob(credentials: ClientSecretCredential, env_mapping: dict, buffer_complete: bool, sensor_buffer: HardwarePayload):
     if buffer_complete == True:
         try:
-            blob_service_client = BlobServiceClient(account_url=account_url, credential=credentials)
-            container_client = blob_service_client.get_container_client(container=container_name)
+            blob_service_client = BlobServiceClient(account_url=env_mapping["STORAGE_URL"], credential=credentials)
+            container_client = blob_service_client.get_container_client(container=env_mapping["CONTAINER"])
 
             HardwarePayload.model_validate(sensor_buffer.model_dump())
             sensors_json = sensor_buffer.model_dump_json()
