@@ -2,7 +2,7 @@ import time
 import concurrent.futures
 
 from local_data_collection.sensor_polling.hardware_sensor_collectors import init_computer, get_cpu_data, get_gpu_data, get_memory_data
-from local_data_collection.sensor_polling.adls_payload import UploadMemory, adls_credentials, upload_blob, get_container
+from local_data_collection.sensor_polling.adls_payload import UploadMemory, adls_credentials, upload_blob
 from local_data_collection.utils.config_loader import load_conf
 
 def main():
@@ -11,7 +11,6 @@ def main():
     end_time = time.time() + 60 * testing_configs["OCCT"]["stability_test"]["length_in_minutes"]
     mainmemory = UploadMemory()
     credential, env_mapping = adls_credentials()
-    container = get_container()
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
         while time.time() < end_time:
@@ -27,7 +26,7 @@ def main():
 
             check_buffer_result = mainmemory.check_buffer(buffer_size_limit=200000)
 
-            upload_blob_result = upload_blob(credentials=credential, env_mapping=env_mapping, buffer_complete=check_buffer_result, sensor_buffer=mainmemory.payload, container_name=container)
+            upload_blob_result = upload_blob(credentials=credential, env_mapping=env_mapping, buffer_complete=check_buffer_result, sensor_buffer=mainmemory.payload)
 
             mainmemory.clear_buffer(buffer_uploaded=upload_blob_result)
 
