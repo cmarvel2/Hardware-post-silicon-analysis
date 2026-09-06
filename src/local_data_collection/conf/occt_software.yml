@@ -1,5 +1,8 @@
 version: 1
-OCCT:
+device: "ASUS_ProArt_P16_(H7606)"
+device_type: "Laptop"
+model: "H7606WV"
+occt:
   stability_test:
     configuration: CPU
     length_in_minutes: 55

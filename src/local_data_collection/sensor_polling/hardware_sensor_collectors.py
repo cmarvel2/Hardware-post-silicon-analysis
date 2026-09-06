@@ -4,11 +4,8 @@ from datetime import datetime, timezone
 
 import clr
 
-from local_data_collection.utils import logger
 from local_data_collection.sensor_polling.models import HardwareDataStorage
 
-
-logger.logging_setup()
 
 currfile = pathlib.Path(__file__).parent.resolve()
 librefile = (currfile / "libs" / "LibreHardwareMonitorLib.dll").resolve()
@@ -27,7 +24,6 @@ def init_computer(cpu: bool=False, motherboard: bool=False, gpu: bool=False, mem
     return computer, HardwareType
 
 def get_cpu_data(computer: Computer, HardwareType: HardwareType) -> list[HardwareDataStorage]:
-    try:
         sensor_list = []
         for hardware in computer.Hardware:
 
@@ -39,42 +35,32 @@ def get_cpu_data(computer: Computer, HardwareType: HardwareType) -> list[Hardwar
                     sensor_list.append(HardwareDataStorage(timestamp=datetime.now(timezone.utc).strftime(r"%Y%m%d_%H%M%S%f")[:-3], hardware_name=hardwarename, sensor_name=sensor.Name, sensor_type=sensor.SensorType.ToString(), sensor_value=sensor.Value))
         logging.info("CPU data ingestion completed")
         return sensor_list
-    except Exception as e:
-        logging.error(f"Error {e} ingesting data from CPU sensors")
-        raise
-
+    
 def get_gpu_data(computer: Computer, HardwareType: HardwareType) -> list[HardwareDataStorage]:
-    try:
-        sensor_list = []
-        for hardware in computer.Hardware:
-            
-            if hardware.HardwareType == HardwareType.GpuAmd or hardware.HardwareType == HardwareType.GpuNvidia:
-                hardware.Update()
-                hardwarename = f"{hardware.Name} {hardware.Identifier}"
+    sensor_list = []
+    for hardware in computer.Hardware:
+        
+        if hardware.HardwareType == HardwareType.GpuAmd or hardware.HardwareType == HardwareType.GpuNvidia:
+            hardware.Update()
+            hardwarename = f"{hardware.Name} {hardware.Identifier}"
 
-                for sensor in hardware.Sensors:
-                    sensor_list.append(HardwareDataStorage(timestamp=datetime.now(timezone.utc).strftime(r"%Y%m%d_%H%M%S%f")[:-3], hardware_name=hardwarename, sensor_name=sensor.Name, sensor_type=sensor.SensorType.ToString(), sensor_value=sensor.Value))
-        logging.info("GPU data ingestion completed")
-        return sensor_list
-    except Exception as e:
-        logging.error(f"Error {e} ingesting data from GPU sensors")
-        raise
+            for sensor in hardware.Sensors:
+                sensor_list.append(HardwareDataStorage(timestamp=datetime.now(timezone.utc).strftime(r"%Y%m%d_%H%M%S%f")[:-3], hardware_name=hardwarename, sensor_name=sensor.Name, sensor_type=sensor.SensorType.ToString(), sensor_value=sensor.Value))
+    logging.info("GPU data ingestion completed")
+    return sensor_list
 
 def get_memory_data(computer: Computer, HardwareType: HardwareType) -> list[HardwareDataStorage]:
-    try:
-        sensor_list = []
+    sensor_list = []
 
-        for hardware in computer.Hardware:
+    for hardware in computer.Hardware:
 
-            if hardware.HardwareType == HardwareType.Memory:
-                hardware.Update()
-                hardwarename = f"{hardware.Name} {hardware.Identifier}"
+        if hardware.HardwareType == HardwareType.Memory:
+            hardware.Update()
+            hardwarename = f"{hardware.Name} {hardware.Identifier}"
 
-                for sensor in hardware.Sensors:
-                    sensor_list.append(HardwareDataStorage(timestamp=datetime.now(timezone.utc).strftime(r"%Y%m%d_%H%M%S%f")[:-3], hardware_name=hardwarename, sensor_name=sensor.Name, sensor_type=sensor.SensorType.ToString(), sensor_value=sensor.Value))
-        logging.info("Memory data ingestion completed")
-        return sensor_list
-    except Exception as e:
-        logging.error(f"Error {e} ingesting data from memory sensors")
-        raise
+            for sensor in hardware.Sensors:
+                sensor_list.append(HardwareDataStorage(timestamp=datetime.now(timezone.utc).strftime(r"%Y%m%d_%H%M%S%f")[:-3], hardware_name=hardwarename, sensor_name=sensor.Name, sensor_type=sensor.SensorType.ToString(), sensor_value=sensor.Value))
+    logging.info("Memory data ingestion completed")
+    return sensor_list
+
 

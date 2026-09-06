@@ -1,20 +1,14 @@
-import winreg
 import logging
-
-from local_data_collection.utils import logger
-
-logger.logging_setup()
+import uuid
 
 def get_windows_uuid() -> str:
-    try:
-        key_handle = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\Microsoft\Cryptography', 0, winreg.KEY_READ)
-        uuid = winreg.QueryValueEx(key_handle, 'MachineGuid')
-        winreg.CloseKey(key_handle)
+    import winreg
+    key_handle = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\Microsoft\Cryptography', 0, winreg.KEY_READ)
+    uuid_tuple = winreg.QueryValueEx(key_handle, 'MachineGuid')
+    winreg.CloseKey(key_handle)
 
-        realuuid, _ = uuid
+    collected_uuid, _ = uuid_tuple
+    validuuid = uuid.UUID(str(collected_uuid))
+    logging.info("Valid windows UUID collected")
 
-        if len(realuuid) == 36:
-            logging.info("UUID retrieved")
-            return realuuid 
-    except Exception as e:
-        logging.error(f"Error {e} caused UUID retrieval failure")
+    return str(validuuid)
