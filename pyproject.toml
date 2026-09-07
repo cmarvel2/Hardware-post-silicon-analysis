@@ -19,6 +19,8 @@ dev = [
     "databricks-dlt",
     "databricks-connect~=18.0",
     "ipykernel",
+    "pytest-cov>=7.1.0",
+    "pytest-mock>=3.15.1",
 ]
 
 [build-system]

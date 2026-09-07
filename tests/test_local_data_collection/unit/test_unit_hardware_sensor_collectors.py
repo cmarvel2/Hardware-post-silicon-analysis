@@ -4,8 +4,8 @@ import pytest
 
 pytest.importorskip("clr")
 
-from local_data_collection.sensor_polling import hardware_sensor_collectors as collectors  # noqa: E402
-from local_data_collection.sensor_polling.models import HardwareDataStorage 
+from local_data_collection.sensor_polling import hardware_sensor_collectors as collectors
+from local_data_collection.sensor_polling.models import HardwareDataStorage
 
 @pytest.fixture
 def open_computer():

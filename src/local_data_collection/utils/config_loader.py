@@ -2,12 +2,11 @@ from pathlib import Path
 import yaml
 
 def load_conf(filename: str | Path ) -> dict:
-    try:
-        fullpath = Path(filename)
+    root = Path(__file__).resolve().parents[3]
+    targetpath = root / "conf" / "conf_local_data_collection" / filename
+    
 
-        with open(fullpath, "r") as ofile:
-            loadconfig = yaml.safe_load(ofile)
+    with open(targetpath, "r") as ofile:
+        loadconfig = yaml.safe_load(ofile)
 
-        return loadconfig
-    except Exception as e:
-        raise e
+    return loadconfig

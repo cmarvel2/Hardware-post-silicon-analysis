@@ -14,8 +14,8 @@ def main():
 
     try:
         computer, hardwaretype = init_computer(cpu=True, gpu=True, motherboard=True, memory=True)
-        testing_configs = config_loader.load_conf(r"C:\courses_and_personal_projects\hardware_data_pipeline\src\local_data_collection\conf\occt_software.yml")
-        end_time = time.time() + 60 * testing_configs["OCCT"]["stability_test"]["length_in_minutes"]
+        testing_configs = config_loader.load_conf("occt_software.yml")
+        end_time = time.time() + 60 * testing_configs["occt"]["stability_test"]["length_in_minutes"]
         mainmemory = UploadMemory()
         credential, env_mapping = adls_credentials()
 
@@ -31,7 +31,7 @@ def main():
                     gpu_data = f2.result()
                     cpu_data = f3.result()
 
-                    mainmemory.payload_buffer_add(filename=r"C:\courses_and_personal_projects\hardware_data_pipeline\src\local_data_collection\conf\occt_software.yml", 
+                    mainmemory.payload_buffer_add(filename="occt_software.yml", 
                                                 cpu_payload=cpu_data,
                                                     gpu_payload=gpu_data, 
                                                     memory_payload=memory_data,
